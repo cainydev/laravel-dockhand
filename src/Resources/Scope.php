@@ -77,6 +77,10 @@ class Scope implements Arrayable, JsonSerializable
      */
     public static function fromString(string $scope): static
     {
+        if (empty($scope)) {
+            throw new \InvalidArgumentException('Scope cannot be empty');
+        }
+
         if (!preg_match('/^([a-z0-9]+(?:\([a-z0-9]+\))?):([^:]+):([a-z,*]+)$/', $scope, $matches)) {
             throw new \InvalidArgumentException("Invalid scope format: $scope");
         }
@@ -262,10 +266,11 @@ class Scope implements Arrayable, JsonSerializable
      * Convert the scope to a registry-compatible string.
      *
      * @return string
+     * @see toString()
      */
     public function __toString(): string
     {
-        return "{$this->type}:{$this->name}:" . implode(',', $this->actions);
+        return $this->toString();
     }
 
     /**

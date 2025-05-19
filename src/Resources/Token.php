@@ -31,6 +31,16 @@ class Token
     }
 
     /**
+     * Create a new Token instance.
+     *
+     * @return static
+     */
+    public static function create(): static
+    {
+        return new static;
+    }
+
+    /**
      * Generate and return the signed JWT token as string.
      *
      * @return string

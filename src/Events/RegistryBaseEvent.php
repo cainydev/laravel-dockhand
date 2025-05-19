@@ -12,20 +12,76 @@ abstract class RegistryBaseEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    protected string $id;
-    protected Carbon $timestamp;
-    protected EventAction $action;
-    protected MediaType $targetMediaType;
-    protected string $targetDigest;
-    protected string $targetRepository;
-    protected string $requestId;
-    protected string $requestAddr;
-    protected string $requestHost;
-    protected string $requestMethod;
-    protected string $requestUserAgent;
-    protected string $actorName;
-    protected string $sourceAddr;
-    protected string $sourceInstanceId;
+    protected string $id {
+        get {
+            return $this->id;
+        }
+    }
+    protected Carbon $timestamp {
+        get {
+            return $this->timestamp;
+        }
+    }
+    protected EventAction $action {
+        get {
+            return $this->action;
+        }
+    }
+    protected MediaType $targetMediaType {
+        get {
+            return $this->targetMediaType;
+        }
+    }
+    protected string $targetDigest {
+        get {
+            return $this->targetDigest;
+        }
+    }
+    protected string $targetRepository {
+        get {
+            return $this->targetRepository;
+        }
+    }
+    protected string $requestId {
+        get {
+            return $this->requestId;
+        }
+    }
+    protected string $requestAddr {
+        get {
+            return $this->requestAddr;
+        }
+    }
+    protected string $requestHost {
+        get {
+            return $this->requestHost;
+        }
+    }
+    protected string $requestMethod {
+        get {
+            return $this->requestMethod;
+        }
+    }
+    protected string $requestUserAgent {
+        get {
+            return $this->requestUserAgent;
+        }
+    }
+    protected string $actorName {
+        get {
+            return $this->actorName;
+        }
+    }
+    protected string $sourceAddr {
+        get {
+            return $this->sourceAddr;
+        }
+    }
+    protected string $sourceInstanceId {
+        get {
+            return $this->sourceInstanceId;
+        }
+    }
 
     /**
      * Base constructor for all registry events.
@@ -52,5 +108,4 @@ abstract class RegistryBaseEvent
         $this->sourceAddr = $data['source']['addr'];
         $this->sourceInstanceId = $data['source']['instanceID'];
     }
-
 }

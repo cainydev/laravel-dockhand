@@ -49,14 +49,6 @@ enum MediaType: string
     }
 
     /**
-     * Get the media type as a string.
-     */
-    public function toString(): string
-    {
-        return $this->value;
-    }
-
-    /**
      * Get the manifest types as a string.
      */
     public static function getManifestTypesAsString(): string
@@ -67,6 +59,14 @@ enum MediaType: string
             self::IMAGE_MANIFEST_V2,
             self::IMAGE_MANIFEST_V2_LIST,
         ]);
+    }
+
+    /**
+     * Get the media type as a string.
+     */
+    public function toString(): string
+    {
+        return $this->value;
     }
 
     /**
@@ -99,7 +99,10 @@ enum MediaType: string
      */
     public function isImageConfig(): bool
     {
-        return $this === self::IMAGE_CONFIG_V1;
+        return in_array($this, [
+            self::IMAGE_CONFIG_V1,
+            self::CONTAINER_CONFIG_V1,
+        ]);
     }
 
     /**
