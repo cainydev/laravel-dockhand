@@ -21,6 +21,10 @@ You can publish the config file with:
 php artisan vendor:publish --tag="dockhand-config"
 ```
 
+Make sure to set up the `DOCKHAND_PUBLIC_KEY` and `DOCKHAND_PRIVATE_KEY` environment variables in your `.env` file.
+Although the itself registry can be used without them (I think), this package was designed for production use and
+requires the key pair for signing the JWT tokens.
+
 ## Interacting with the registry
 
 The `\Cainy\Dockhand\Facades\Dockhand` facade is used to directly interact with the registry's HTTP API.
@@ -83,6 +87,61 @@ has to match the one in the configuration file.
 - `BlobMountedEvent`
 - `BlobDeletedEvent`
 - `TagDeletedEvent`
+
+## Example registry configuration
+
+This is a minimal example of a registry configuration file that worked fine for me for development purposes (using
+sail):
+
+```dotenv
+DOCKHAND_PUBLIC_KEY=/path/to/public_key.pem
+DOCKHAND_PRIVATE_KEY=/path/to/private_key.pem
+DOCKHAND_BASE_URI=http://registry:5000/v2
+DOCKHAND_AUTHORITY_NAME=my_auth
+DOCKHAND_REGISTRY_NAME=my_registry
+DOCKHAND_NOTIFICATIONS_ENABLED=true
+DOCKHAND_NOTIFICATIONS_ROUTE=/dockhand/notify
+```
+
+```yaml
+version: 0.1
+log:
+    fields:
+        service: registry
+storage:
+    cache:
+        blobdescriptor: inmemory
+    filesystem:
+        rootdirectory: /var/lib/registry
+http:
+    addr: :5000
+    secret: devsecret
+    headers:
+        X-Content-Type-Options: [ nosniff ]
+auth:
+    token:
+        realm: http://laravel/auth/token # replace with your auth server uri
+        service: my_registry # replace with your DOCKHAND_REGISTRY_NAME
+        issuer: my_auth # replace with your DOCKHAND_AUTHORITY_NAME
+        rootcertbundle: /root/certs/cert.pem
+notifications:
+    endpoints:
+        -   name: EventListener
+            url: http://laravel/dockhand/notify # replace with your notify endpoint
+            headers:
+                Authorization: [ "Bearer <notify token>" ]
+            timeout: 500ms
+            threshold: 5
+            backoff: 1s
+            ignore:
+                actions:
+                    - pull
+health:
+    storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+```
 
 ## Contributing
 
