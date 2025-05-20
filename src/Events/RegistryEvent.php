@@ -4,22 +4,16 @@ namespace Cainy\Dockhand\Events;
 
 abstract class RegistryEvent extends RegistryBaseEvent
 {
-    protected int $targetSize {
-        get {
-            return $this->targetSize;
-        }
+    public int $targetSize {
+        get => $this->targetSize;
     }
 
-    protected string $targetUrl {
-        get {
-            return $this->targetUrl;
-        }
+    public string $targetUrl {
+        get => $this->targetUrl;
     }
 
-    protected string $targetTag {
-        get {
-            return $this->targetTag;
-        }
+    public string $targetTag {
+        get => $this->targetTag;
     }
 
     public function __construct(array $data)

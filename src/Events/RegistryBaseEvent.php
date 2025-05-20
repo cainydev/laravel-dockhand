@@ -12,75 +12,59 @@ abstract class RegistryBaseEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    protected string $id {
-        get {
-            return $this->id;
-        }
+    public string $id {
+        get => $this->id;
     }
-    protected Carbon $timestamp {
-        get {
-            return $this->timestamp;
-        }
+
+    public Carbon $timestamp {
+        get => $this->timestamp;
     }
-    protected EventAction $action {
-        get {
-            return $this->action;
-        }
+
+    public EventAction $action {
+        get => $this->action;
     }
-    protected MediaType $targetMediaType {
-        get {
-            return $this->targetMediaType;
-        }
+
+    public MediaType $targetMediaType {
+        get => $this->targetMediaType;
     }
-    protected string $targetDigest {
-        get {
-            return $this->targetDigest;
-        }
+
+    public string $targetDigest {
+        get => $this->targetDigest;
     }
-    protected string $targetRepository {
-        get {
-            return $this->targetRepository;
-        }
+
+    public string $targetRepository {
+        get => $this->targetRepository;
     }
-    protected string $requestId {
-        get {
-            return $this->requestId;
-        }
+
+    public string $requestId {
+        get => $this->requestId;
     }
-    protected string $requestAddr {
-        get {
-            return $this->requestAddr;
-        }
+
+    public string $requestAddr {
+        get => $this->requestAddr;
     }
-    protected string $requestHost {
-        get {
-            return $this->requestHost;
-        }
+
+    public string $requestHost {
+        get => $this->requestHost;
     }
-    protected string $requestMethod {
-        get {
-            return $this->requestMethod;
-        }
+
+    public string $requestMethod {
+        get => $this->requestMethod;
     }
-    protected string $requestUserAgent {
-        get {
-            return $this->requestUserAgent;
-        }
+
+    public string $requestUserAgent {
+        get => $this->requestUserAgent;
     }
-    protected string $actorName {
-        get {
-            return $this->actorName;
-        }
+
+    public string $actorName {
+        get => $this->actorName;
     }
-    protected string $sourceAddr {
-        get {
-            return $this->sourceAddr;
-        }
+
+    public string $sourceAddr {
+        get => $this->sourceAddr;
     }
-    protected string $sourceInstanceId {
-        get {
-            return $this->sourceInstanceId;
-        }
+    public string $sourceInstanceId {
+        get => $this->sourceInstanceId;
     }
 
     /**
