@@ -5,6 +5,7 @@ namespace Cainy\Dockhand\Resources;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 use function implode;
+use function in_array;
 
 /**
  * Manages Docker registry access scopes for authentication.
@@ -41,6 +42,10 @@ class Scope implements Arrayable, JsonSerializable
      */
     protected array $actions {
         get {
+            if ($this->allowPull && $this->allowPush && $this->allowDelete) {
+                return ['*'];
+            }
+
             $arr = [];
             if ($this->allowPull) {
                 $arr[] = 'pull';
@@ -51,10 +56,16 @@ class Scope implements Arrayable, JsonSerializable
             if ($this->allowDelete) {
                 $arr[] = 'delete';
             }
-            if ($this->allowAll()) {
-                $arr[] = '*';
-            }
+
             return $arr;
+        }
+
+        set {
+            $this->allowNone();
+            if (in_array('pull', $value)) $this->allowPull();
+            if (in_array('push', $value)) $this->allowPush();
+            if (in_array('delete', $value)) $this->allowDelete();
+            if (in_array('*', $value)) $this->allowAll();
         }
     }
 
@@ -358,9 +369,6 @@ class Scope implements Arrayable, JsonSerializable
      */
     public function setActions(array $actions): static
     {
-        $this->allowPull = in_array('pull', $actions);
-        $this->allowPush = in_array('push', $actions);
-        $this->allowDelete = in_array('delete', $actions);
-        return $this;
+        $this->actions = $actions;
     }
 }
