@@ -370,5 +370,6 @@ class Scope implements Arrayable, JsonSerializable
     public function setActions(array $actions): static
     {
         $this->actions = $actions;
+        return $this;
     }
 }
