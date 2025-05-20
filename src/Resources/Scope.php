@@ -3,6 +3,7 @@
 namespace Cainy\Dockhand\Resources;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Facades\Log;
 use JsonSerializable;
 use function implode;
 
@@ -88,7 +89,11 @@ class Scope implements Arrayable, JsonSerializable
             throw new \InvalidArgumentException("Invalid scope format: $scope");
         }
 
+        Log::channel('stderr')->info('Parsed scope: ', $matches);
+
         [, $resourceType, $resourceName, $actionString] = $matches;
+
+        Log::channel('stderr')->info('Parsing resource type');
 
         $type = ScopeResourceType::tryFrom($resourceType);
 
@@ -96,12 +101,16 @@ class Scope implements Arrayable, JsonSerializable
             throw new \InvalidArgumentException("Invalid resource type: $resourceType");
         }
 
+        Log::channel('stderr')->info('Parsed resource type: ' . $type->value);
+
         $actions = explode(',', $actionString);
 
         $instance = new static();
 
         $instance->type = $type;
         $instance->name = $resourceName;
+
+        Log::channel('stderr')->info('Adding actions: ' . implode(', ', $actions));
 
         if (in_array('pull', $actions)) {
             $instance->allowPull();
