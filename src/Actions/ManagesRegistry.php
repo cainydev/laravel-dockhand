@@ -14,11 +14,12 @@ trait ManagesRegistry
     public function isOnline(): bool
     {
         try {
-            return $this
+            $this
                 ->request()
                 ->withToken(Token::toString())
-                ->get('/')
-                ->successful();
+                ->get('/');
+
+            return true;
         } catch (ConnectionException $e) {
             return false;
         }
@@ -38,7 +39,7 @@ trait ManagesRegistry
 
         return match ($response->getHeaderLine('Docker-Distribution-Api-Version')) {
             'registry/1.0' => RegistryApiVersion::V1,
-            'registry/2.0' => RegistryApiVersion::V2
+            default => RegistryApiVersion::V2,
         };
     }
 }
