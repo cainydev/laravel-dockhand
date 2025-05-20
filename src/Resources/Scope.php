@@ -84,6 +84,10 @@ class Scope implements Arrayable, JsonSerializable
             throw new \InvalidArgumentException("Invalid scope format: $scope");
         }
 
+        if (count($matches) !== 4 || !isset($matches[1], $matches[2], $matches[3])) {
+            throw new \InvalidArgumentException("Invalid scope format: $scope");
+        }
+
         [, $resourceType, $resourceName, $actionString] = $matches;
 
         $type = ScopeResourceType::tryFrom($resourceType);
