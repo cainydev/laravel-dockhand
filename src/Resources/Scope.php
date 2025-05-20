@@ -347,4 +347,18 @@ class Scope implements Arrayable, JsonSerializable
     {
         return $this->actions;
     }
+
+    /**
+     * Overwrite the actions with the given array.
+     *
+     * @param array $actions
+     * @return $this
+     */
+    public function setActions(array $actions): static
+    {
+        $this->allowPull = in_array('pull', $actions);
+        $this->allowPush = in_array('push', $actions);
+        $this->allowDelete = in_array('delete', $actions);
+        return $this;
+    }
 }
