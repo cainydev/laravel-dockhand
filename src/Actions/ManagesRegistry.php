@@ -19,7 +19,7 @@ trait ManagesRegistry
         try {
             return $this
                 ->request()
-                ->withToken(Token::toString())
+                ->withToken(Token::create()->toString())
                 ->get('/')
                 ->successful();
         } catch (ConnectionException $e) {
@@ -36,7 +36,7 @@ trait ManagesRegistry
     {
         $response = $this
             ->request()
-            ->withToken(Token::toString())
+            ->withToken(Token::create()->toString())
             ->get('/');
 
         return match ($response->getHeaderLine('Docker-Distribution-Api-Version')) {
@@ -54,7 +54,7 @@ trait ManagesRegistry
     public function getCatalog(): Collection
     {
         return collect(Dockhand::request()
-            ->withToken(Token::withScope(Scope::catalog()))
+            ->withToken(Token::withScope(Scope::catalog())->toString())
             ->get('/_catalog')['repositories']);
     }
 }
