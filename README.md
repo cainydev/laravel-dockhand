@@ -22,7 +22,7 @@ php artisan vendor:publish --tag="dockhand-config"
 ```
 
 Make sure to set up the `DOCKHAND_PUBLIC_KEY` and `DOCKHAND_PRIVATE_KEY` environment variables in your `.env` file.
-Although the itself registry can be used without them (I think), this package was designed for production use and
+Although the registry itself can be used without them (I think), this package was designed for production use and
 requires the key pair for signing the JWT tokens.
 
 ## Interacting with the registry
@@ -75,7 +75,7 @@ notifications:
 ```
 
 The `DOCKHAND_NOTIFICATIONS_ENABLED` environment variable has to be set to `true` and the `DOCKHAND_NOTIFICATIONS_URL`
-has to match the one in the configuration file.
+has to match the one in the registry configuration file.
 
 ### Available events
 
