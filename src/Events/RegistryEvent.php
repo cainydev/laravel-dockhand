@@ -2,8 +2,14 @@
 
 namespace Cainy\Dockhand\Events;
 
+use Cainy\Dockhand\Resources\MediaType;
+
 abstract class RegistryEvent extends RegistryBaseEvent
 {
+    public MediaType $targetMediaType {
+        get => $this->targetMediaType;
+    }
+
     public int $targetSize {
         get => $this->targetSize;
     }
@@ -12,7 +18,7 @@ abstract class RegistryEvent extends RegistryBaseEvent
         get => $this->targetUrl;
     }
 
-    public string $targetTag {
+    public ?string $targetTag {
         get => $this->targetTag;
     }
 
@@ -20,9 +26,15 @@ abstract class RegistryEvent extends RegistryBaseEvent
     {
         parent::__construct($data);
 
+        $this->targetMediaType = MediaType::from($data['target']['mediaType']);
         $this->targetSize = $data['target']['size'];
         $this->targetUrl = $data['target']['url'];
-        $this->targetTag = $data['target']['tag'];
+        
+        if (isset($data['target']['tag'])) {
+            $this->targetTag = $data['target']['tag'];
+        } else {
+            $this->targetTag = null;
+        }
     }
 
 }

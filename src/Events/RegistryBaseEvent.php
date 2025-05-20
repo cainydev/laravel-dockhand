@@ -2,7 +2,6 @@
 
 namespace Cainy\Dockhand\Events;
 
-use Cainy\Dockhand\Resources\MediaType;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -22,10 +21,6 @@ abstract class RegistryBaseEvent
 
     public EventAction $action {
         get => $this->action;
-    }
-
-    public MediaType $targetMediaType {
-        get => $this->targetMediaType;
     }
 
     public string $targetDigest {
@@ -56,7 +51,7 @@ abstract class RegistryBaseEvent
         get => $this->requestUserAgent;
     }
 
-    public string $actorName {
+    public ?string $actorName {
         get => $this->actorName;
     }
 
@@ -87,7 +82,10 @@ abstract class RegistryBaseEvent
         $this->requestMethod = $data['request']['method'];
         $this->requestUserAgent = $data['request']['useragent'];
 
-        $this->actorName = $data['actor']['name'];
+        if (!empty($data['actor']))
+            $this->actorName = $data['actor']['name'];
+        else
+            $this->actorName = null;
 
         $this->sourceAddr = $data['source']['addr'];
         $this->sourceInstanceId = $data['source']['instanceID'];
