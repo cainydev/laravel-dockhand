@@ -3,8 +3,8 @@
 namespace Cainy\Dockhand\Facades;
 
 use Cainy\Dockhand\Resources\Scope as ScopeResource;
+use Cainy\Dockhand\Resources\ScopeResourceType;
 use Illuminate\Support\Facades\Facade;
-use ScopeResourceType;
 
 /**
  * Facade for the Scope class providing a clean static interface.

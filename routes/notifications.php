@@ -41,11 +41,11 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
             !isset($eventData['action'], $eventData['target'], $eventData['id'], $eventData['timestamp']) ||
             !is_array($eventData['target'])
         ) {
-            Log::channel('stderr')->error('Malformed event received, missing essential fields: ', $eventData);
+            Log::error('Malformed event received, missing essential fields: ', $eventData);
             continue;
         }
 
-        Log::channel('stderr')->info('Processing event: ' . json_encode($eventData, JSON_PRETTY_PRINT));
+        Log::info('Processing event: ' . json_encode($eventData, JSON_PRETTY_PRINT));
 
         try {
             $action = EventAction::from($eventData['action']);
@@ -55,68 +55,68 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
             switch ($action) {
                 case EventAction::PUSH:
                     if (!$mediaType) {
-                        Log::channel('stderr')->error("PUSH event without a target.mediaType. Event ID: {$eventData['id']}");
+                        Log::error("PUSH event without a target.mediaType. Event ID: {$eventData['id']}");
                         continue 2;
                     }
 
                     if ($mediaType->isImageManifest() || $mediaType->isImageIndex()) {
-                        Log::channel('stderr')->info("Dispatching ManifestPushedEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
+                        Log::info("Dispatching ManifestPushedEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                         ManifestPushedEvent::dispatch($eventData);
                     } elseif ($mediaType->isImageLayer() || $mediaType->isImageConfig() || $mediaType->isCustom()) {
-                        Log::channel('stderr')->info("Dispatching BlobPushedEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
+                        Log::info("Dispatching BlobPushedEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                         BlobPushedEvent::dispatch($eventData);
                     } else {
-                        Log::channel('stderr')->warning("Unhandled mediaType '{$mediaType->value}' for PUSH action. Event ID: {$eventData['id']}. Defaulting to BlobPushedEvent.");
+                        Log::warning("Unhandled mediaType '{$mediaType->value}' for PUSH action. Event ID: {$eventData['id']}. Defaulting to BlobPushedEvent.");
                         BlobPushedEvent::dispatch($eventData);
                     }
                     break;
 
                 case EventAction::PULL:
                     if (!$mediaType) {
-                        Log::channel('stderr')->error("PULL event without a target.mediaType. Event ID: {$eventData['id']}");
+                        Log::error("PULL event without a target.mediaType. Event ID: {$eventData['id']}");
                         continue 2;
                     }
 
                     if ($mediaType->isImageManifest() || $mediaType->isImageIndex()) {
-                        Log::channel('stderr')->info("Dispatching ManifestPulledEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
+                        Log::info("Dispatching ManifestPulledEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                         ManifestPulledEvent::dispatch($eventData);
                     } elseif ($mediaType->isImageLayer() || $mediaType->isImageConfig() || $mediaType->isCustom() || $mediaType === MediaType::CONTAINER_CONFIG_V1) {
-                        Log::channel('stderr')->info("Dispatching BlobPulledEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
+                        Log::info("Dispatching BlobPulledEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                         BlobPulledEvent::dispatch($eventData);
                     } else {
-                        Log::channel('stderr')->warning("Unhandled mediaType '{$mediaType->value}' for PULL action. Event ID: {$eventData['id']}. Defaulting to BlobPulledEvent.");
+                        Log::warning("Unhandled mediaType '{$mediaType->value}' for PULL action. Event ID: {$eventData['id']}. Defaulting to BlobPulledEvent.");
                         BlobPulledEvent::dispatch($eventData);
                     }
                     break;
 
                 case EventAction::MOUNT:
                     if ($mediaType === null || $mediaType->isImageLayer() || $mediaType->isImageConfig() || $mediaType->isCustom() || $mediaType === MediaType::CONTAINER_CONFIG_V1) {
-                        Log::channel('stderr')->info("Dispatching BlobMountedEvent for ID: {$eventData['id']}" . ($mediaType ? " (MediaType: {$mediaType->value})" : " (MediaType: null)"));
+                        Log::info("Dispatching BlobMountedEvent for ID: {$eventData['id']}" . ($mediaType ? " (MediaType: {$mediaType->value})" : " (MediaType: null)"));
                         BlobMountedEvent::dispatch($eventData);
                     } elseif ($mediaType->isImageManifest() || $mediaType->isImageIndex()) {
-                        Log::channel('stderr')->error("MOUNT event received for a manifest/index mediaType '{$mediaType->value}'. This is unexpected. Skipping. Event ID: {$eventData['id']}");
+                        Log::error("MOUNT event received for a manifest/index mediaType '{$mediaType->value}'. This is unexpected. Skipping. Event ID: {$eventData['id']}");
                         continue 2;
                     } else {
-                        Log::channel('stderr')->warning("MOUNT event with unexpected specific mediaType '{$mediaType->value}'. Assuming blob-like. Event ID: {$eventData['id']}");
+                        Log::warning("MOUNT event with unexpected specific mediaType '{$mediaType->value}'. Assuming blob-like. Event ID: {$eventData['id']}");
                         BlobMountedEvent::dispatch($eventData);
                     }
                     break;
 
                 case EventAction::DELETE:
                     if (!empty($target['tag'])) {
-                        Log::channel('stderr')->info("Dispatching TagDeletedEvent for tag: {$target['tag']}, Repo: {$target['repository']}. Event ID: {$eventData['id']}");
+                        Log::info("Dispatching TagDeletedEvent for tag: {$target['tag']}, Repo: {$target['repository']}. Event ID: {$eventData['id']}");
                         TagDeletedEvent::dispatch($eventData);
                     } elseif (!empty($target['digest'])) {
                         if ($mediaType && ($mediaType->isImageManifest() || $mediaType->isImageIndex())) {
-                            Log::channel('stderr')->info("Dispatching ManifestDeletedEvent for digest: {$target['digest']}, Repo: {$target['repository']}. Event ID: {$eventData['id']} (MediaType: {$mediaType->value})");
+                            Log::info("Dispatching ManifestDeletedEvent for digest: {$target['digest']}, Repo: {$target['repository']}. Event ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                             ManifestDeletedEvent::dispatch($eventData);
                         } else {
                             $mtValue = $mediaType ? $mediaType->value : 'null';
-                            Log::channel('stderr')->info("Dispatching BlobDeletedEvent for digest: {$target['digest']}, Repo: {$target['repository']}. Event ID: {$eventData['id']} (MediaType: {$mtValue})");
+                            Log::info("Dispatching BlobDeletedEvent for digest: {$target['digest']}, Repo: {$target['repository']}. Event ID: {$eventData['id']} (MediaType: {$mtValue})");
                             BlobDeletedEvent::dispatch($eventData);
                         }
                     } else {
-                        Log::channel('stderr')->error("DELETE event without 'target.tag' or 'target.digest'. Event ID: {$eventData['id']}. Payload: " . json_encode($target));
+                        Log::error("DELETE event without 'target.tag' or 'target.digest'. Event ID: {$eventData['id']}. Payload: " . json_encode($target));
                         continue 2;
                     }
                     break;
@@ -125,12 +125,12 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
                     throw new UnsupportedException("Unknown event action '{$eventData['action']}' encountered in switch. Event ID: {$eventData['id']}");
             }
         } catch (\ValueError $e) {
-            Log::channel('stderr')->error("Couldn't parse value t oenum. '{$eventData['action']}'. Error: {$e->getMessage()}. Event ID: {$eventData['id']}");
+            Log::error("Couldn't parse value t oenum. '{$eventData['action']}'. Error: {$e->getMessage()}. Event ID: {$eventData['id']}");
             throw new ParseException("Invalid event action string '{$eventData['action']}'. Event ID: {$eventData['id']}", 0, $e);
         } catch (UnauthorizedException|ParseException|UnsupportedException $e) {
             throw $e;
         } catch (\Exception $e) {
-            Log::channel('stderr')->error("An unexpected error occurred while processing event ID {$eventData['id']}: {$e->getMessage()}\n" . $e->getTraceAsString());
+            Log::error("An unexpected error occurred while processing event ID {$eventData['id']}: {$e->getMessage()}\n" . $e->getTraceAsString());
             throw new UnknownException("An unexpected error occurred while processing event. Please check logs. Event ID: {$eventData['id']}", 0, $e);
         }
     }

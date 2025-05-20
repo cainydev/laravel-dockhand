@@ -2,12 +2,9 @@
 
 namespace Cainy\Dockhand\Actions;
 
-use Cainy\Dockhand\Facades\Dockhand;
+use Cainy\Dockhand\Facades\Token;
 use Cainy\Dockhand\Resources\RegistryApiVersion;
-use Cainy\Dockhand\Resources\Scope;
-use Cainy\Dockhand\Resources\Token;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Collection;
 
 trait ManagesRegistry
 {
@@ -19,7 +16,7 @@ trait ManagesRegistry
         try {
             return $this
                 ->request()
-                ->withToken(Token::create()->toString())
+                ->withToken(Token::toString())
                 ->get('/')
                 ->successful();
         } catch (ConnectionException $e) {
@@ -36,25 +33,12 @@ trait ManagesRegistry
     {
         $response = $this
             ->request()
-            ->withToken(Token::create()->toString())
+            ->withToken(Token::toString())
             ->get('/');
 
         return match ($response->getHeaderLine('Docker-Distribution-Api-Version')) {
             'registry/1.0' => RegistryApiVersion::V1,
             'registry/2.0' => RegistryApiVersion::V2
         };
-    }
-
-    /**
-     * Get a list of all the repositories in the registry.
-     * Only returns the names of the repositories.
-     *
-     * @throws ConnectionException
-     */
-    public function getCatalog(): Collection
-    {
-        return collect(Dockhand::request()
-            ->withToken(Token::withScope(Scope::catalog())->toString())
-            ->get('/_catalog')['repositories']);
     }
 }

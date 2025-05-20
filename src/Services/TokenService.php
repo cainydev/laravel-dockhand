@@ -138,7 +138,7 @@ class TokenService
             return true;
         } catch (RequiredConstraintsViolated $e) {
             foreach ($e->violations() as $v) {
-                Log::channel('stderr')->info($v);
+                Log::info($v);
             }
 
             return false;

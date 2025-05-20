@@ -2,19 +2,20 @@
     "name": "cainy/laravel-dockhand",
     "description": "A Laravel Package for interacting with registries following the Open Container Initiative Distribution Specification ",
     "keywords": [
-        "John Wagner",
         "laravel",
+        "docker",
         "container",
         "registry",
-        "distribution"
+        "distribution",
+        "oci"
     ],
-    "homepage": "https://github.com/cainytheslave/laravel-dockhand",
+    "homepage": "https://github.com/cainydev/laravel-dockhand",
     "license": "MIT",
     "authors": [
         {
             "name": "John Wagner",
             "email": "info@techbra.in",
-            "role": "Developer"
+            "role": "Maintainer"
         }
     ],
     "require": {
@@ -42,14 +43,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Cainy\\Dockhand\\": "src/",
-            "Cainy\\Dockhand\\Database\\Factories\\": "database/factories/"
+            "Cainy\\Dockhand\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Cainy\\Dockhand\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "Cainy\\Dockhand\\Tests\\": "tests/"
         }
     },
     "scripts": {

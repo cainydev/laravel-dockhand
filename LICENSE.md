@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) John Wagner <wajo432@gmail.com>
+Copyright (c) John Wagner <info@techbra.in>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

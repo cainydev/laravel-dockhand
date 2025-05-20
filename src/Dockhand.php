@@ -5,6 +5,7 @@ namespace Cainy\Dockhand;
 use Cainy\Dockhand\Actions\ManagesImageManifests;
 use Cainy\Dockhand\Actions\ManagesRegistry;
 use Cainy\Dockhand\Actions\ManagesRepositories;
+use Cainy\Dockhand\Actions\ManagesTags;
 use Cainy\Dockhand\Services\RegistryRequestService as HttpClient;
 use Illuminate\Http\Client\PendingRequest;
 
@@ -12,12 +13,23 @@ class Dockhand
 {
     use ManagesImageManifests,
         ManagesRegistry,
-        ManagesRepositories;
+        ManagesRepositories,
+        ManagesTags;
 
     /**
      * The base URL of the registry.
      */
     protected string $baseUrl;
+
+    /**
+     * The name of the registry.
+     */
+    protected string $registryName;
+
+    /**
+     * The name of the authority.
+     */
+    protected string $authorityName;
 
     /**
      * The HTTP Client to communicate with the registry instance.
@@ -29,8 +41,10 @@ class Dockhand
      *
      * @return void
      */
-    public function __construct(string $baseUrl)
+    public function __construct(string $baseUrl, string $registryName, string $authorityName)
     {
+        $this->registryName = $registryName;
+        $this->authorityName = $authorityName;
         $this->baseUrl = $baseUrl;
         $this->http = new HttpClient($baseUrl);
     }

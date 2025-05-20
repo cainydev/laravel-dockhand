@@ -3,6 +3,7 @@
 namespace Cainy\Dockhand\Resources;
 
 use Cainy\Dockhand\Facades\Dockhand;
+use Illuminate\Http\Client\ConnectionException;
 
 class Tag
 {
@@ -11,8 +12,8 @@ class Tag
      */
     protected string $repository {
         get {
-        return $this->repository;
-    }
+            return $this->repository;
+        }
     }
 
     /**
@@ -20,8 +21,8 @@ class Tag
      */
     protected string $name {
         get {
-        return $this->name;
-    }
+            return $this->name;
+        }
     }
 
     /**
@@ -51,6 +52,8 @@ class Tag
 
     /**
      * Get the manifest of the tag.
+     *
+     * @throws ConnectionException
      */
     public function getManifest(): ImageManifest
     {
