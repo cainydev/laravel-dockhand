@@ -125,7 +125,7 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
                     throw new UnsupportedException("Unknown event action '{$eventData['action']}' encountered in switch. Event ID: {$eventData['id']}");
             }
         } catch (\ValueError $e) {
-            Log::channel('stderr')->error("Invalid event action string '{$eventData['action']}'. Error: {$e->getMessage()}. Event ID: {$eventData['id']}");
+            Log::channel('stderr')->error("Couldn't parse value t oenum. '{$eventData['action']}'. Error: {$e->getMessage()}. Event ID: {$eventData['id']}");
             throw new ParseException("Invalid event action string '{$eventData['action']}'. Event ID: {$eventData['id']}", 0, $e);
         } catch (UnauthorizedException|ParseException|UnsupportedException $e) {
             throw $e;

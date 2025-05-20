@@ -30,6 +30,8 @@ enum MediaType: string
     // Other Media Types
     case EMPTY_JSON = 'application/vnd.oci.empty.v1+json';
 
+    case OCTET_STREAM = 'application/octet-stream';
+
     // Custom Media Type
     case CUSTOM = 'custom';
 
@@ -74,35 +76,10 @@ enum MediaType: string
      */
     public function isImageManifest(): bool
     {
-        return in_array($this, [
-            self::IMAGE_MANIFEST_V1,
-            self::IMAGE_MANIFEST_V1_SIGNED,
-            self::IMAGE_MANIFEST_V2,
-            self::IMAGE_MANIFEST_V2_LIST,
-        ]);
-    }
-
-    /**
-     * Check if the media type is for an image layer.
-     */
-    public function isImageLayer(): bool
-    {
-        return in_array($this, [
-            self::IMAGE_LAYER_V1_TAR,
-            self::IMAGE_LAYER_V1_TAR_GZIP,
-            self::IMAGE_LAYER_V1_TAR_ZSTD,
-        ]);
-    }
-
-    /**
-     * Check if the media type is for an image config.
-     */
-    public function isImageConfig(): bool
-    {
-        return in_array($this, [
-            self::IMAGE_CONFIG_V1,
-            self::CONTAINER_CONFIG_V1,
-        ]);
+        return $this === self::IMAGE_MANIFEST_V1
+            || $this === self::IMAGE_MANIFEST_V1_SIGNED
+            || $this === self::IMAGE_MANIFEST_V2
+            || $this === self::IMAGE_MANIFEST_V2_LIST;
     }
 
     /**
@@ -119,5 +96,35 @@ enum MediaType: string
     public function isCustom(): bool
     {
         return $this === self::CUSTOM;
+    }
+
+    /**
+     * Check if the media type is blob-like.
+     */
+    public function isBlobLike(): bool
+    {
+        return $this->isImageLayer()
+            || $this->isImageConfig()
+            || $this === self::OCTET_STREAM
+            || $this === self::CUSTOM;
+    }
+
+    /**
+     * Check if the media type is for an image layer.
+     */
+    public function isImageLayer(): bool
+    {
+        return $this === self::IMAGE_LAYER_V1_TAR
+            || $this === self::IMAGE_LAYER_V1_TAR_GZIP
+            || $this === self::IMAGE_LAYER_V1_TAR_ZSTD;
+    }
+
+    /**
+     * Check if the media type is for an image config.
+     */
+    public function isImageConfig(): bool
+    {
+        return $this === self::IMAGE_CONFIG_V1
+            || $this === self::CONTAINER_CONFIG_V1;
     }
 }
