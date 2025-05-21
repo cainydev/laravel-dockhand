@@ -27,6 +27,9 @@ enum MediaType: string
     case IMAGE_LAYER_V1_TAR_GZIP = 'application/vnd.oci.image.layer.v1.tar+gzip';
     case IMAGE_LAYER_V1_TAR_ZSTD = 'application/vnd.oci.image.layer.v1.tar+zstd';
 
+    // Image RootFS Media Types
+    case IMAGE_ROOTFS_DIFF_TAR_GZIP = 'application/vnd.docker.image.rootfs.diff.tar.gzip';
+
     // Other Media Types
     case EMPTY_JSON = 'application/vnd.oci.empty.v1+json';
 
@@ -56,10 +59,10 @@ enum MediaType: string
     public static function getManifestTypesAsString(): string
     {
         return implode(',', [
-            self::IMAGE_MANIFEST_V1,
-            self::IMAGE_MANIFEST_V1_SIGNED,
-            self::IMAGE_MANIFEST_V2,
-            self::IMAGE_MANIFEST_V2_LIST,
+            self::IMAGE_MANIFEST_V1->toString(),
+            self::IMAGE_MANIFEST_V1_SIGNED->toString(),
+            self::IMAGE_MANIFEST_V2->toString(),
+            self::IMAGE_MANIFEST_V2_LIST->toString(),
         ]);
     }
 
@@ -72,22 +75,22 @@ enum MediaType: string
     }
 
     /**
-     * Check if the media type is for an image manifest.
+     * Check if the media type is for an image manifest (single image).
      */
     public function isImageManifest(): bool
     {
         return $this === self::IMAGE_MANIFEST_V1
             || $this === self::IMAGE_MANIFEST_V1_SIGNED
-            || $this === self::IMAGE_MANIFEST_V2
-            || $this === self::IMAGE_MANIFEST_V2_LIST;
+            || $this === self::IMAGE_MANIFEST_V2;
     }
 
     /**
-     * Check if the media type is for an image index.
+     * Check if the media type is for an image manifest list (possibly multiple images).
      */
-    public function isImageIndex(): bool
+    public function isImageManifestList(): bool
     {
-        return $this === self::IMAGE_INDEX_V1;
+        return $this === self::IMAGE_INDEX_V1
+            || $this === self::IMAGE_MANIFEST_V2_LIST;
     }
 
     /**
@@ -126,5 +129,13 @@ enum MediaType: string
     {
         return $this === self::IMAGE_CONFIG_V1
             || $this === self::CONTAINER_CONFIG_V1;
+    }
+
+    /**
+     * Check if the media type is for an image root filesystem.
+     */
+    public function isImageRootfs(): bool
+    {
+        return $this === self::IMAGE_ROOTFS_DIFF_TAR_GZIP;
     }
 }

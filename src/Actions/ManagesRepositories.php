@@ -2,7 +2,7 @@
 
 namespace Cainy\Dockhand\Actions;
 
-use Cainy\Dockhand\Facades\Dockhand;
+use Arr;
 use Cainy\Dockhand\Resources\Repository;
 use Cainy\Dockhand\Resources\Scope;
 use Cainy\Dockhand\Resources\Tag;
@@ -18,6 +18,7 @@ trait ManagesRepositories
     /**
      * Get a list of all the repositories in the registry.
      *
+     * @return Collection<Repository>
      * @throws ConnectionException
      */
     public function getRepositories(): Collection
@@ -30,11 +31,14 @@ trait ManagesRepositories
                 ->toString())
             ->get('/_catalog');
 
-        return collect($response['repositories']);
+        return collect(Arr::map($response['repositories'], fn($repository) => new Repository($repository)));
     }
 
     /**
      * Get a repository by name.
+     *
+     * @param string $repository The full repository name (e.g., "john/busybox").
+     * @return Repository
      */
     public function getRepository(string $repository): Repository
     {
@@ -44,11 +48,17 @@ trait ManagesRepositories
     /**
      * Get a list of all the tags in the repository.
      *
+     * @param string|Repository $repository The full repository name (e.g., "john/busybox").
+     * @return Collection<Tag>
      * @throws ConnectionException
      */
-    public function getTagsOfRepository(string $repository): Collection
+    public function getTagsOfRepository(string|Repository $repository): Collection
     {
-        return collect(Dockhand::request()
+        if ($repository instanceof Repository) {
+            $repository = $repository->name;
+        }
+
+        return collect($this->request()
             ->withToken(Token::withScope(Scope::readRepository($repository))
                 ->issuedBy(config('dockhand.authority_name'))
                 ->permittedFor(config('dockhand.registry_name'))

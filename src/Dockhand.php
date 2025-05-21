@@ -2,19 +2,17 @@
 
 namespace Cainy\Dockhand;
 
-use Cainy\Dockhand\Actions\ManagesImageManifests;
+use Cainy\Dockhand\Actions\ManagesManifests;
 use Cainy\Dockhand\Actions\ManagesRegistry;
 use Cainy\Dockhand\Actions\ManagesRepositories;
-use Cainy\Dockhand\Actions\ManagesTags;
 use Cainy\Dockhand\Services\RegistryRequestService as HttpClient;
 use Illuminate\Http\Client\PendingRequest;
 
 class Dockhand
 {
-    use ManagesImageManifests,
+    use ManagesManifests,
         ManagesRegistry,
-        ManagesRepositories,
-        ManagesTags;
+        ManagesRepositories;
 
     /**
      * The base URL of the registry.
