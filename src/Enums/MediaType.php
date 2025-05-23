@@ -1,6 +1,6 @@
 <?php
 
-namespace Cainy\Dockhand\Resources;
+namespace Cainy\Dockhand\Enums;
 
 use Illuminate\Support\Facades\Log;
 use ValueError;
@@ -11,13 +11,13 @@ enum MediaType: string
     case IMAGE_MANIFEST_V1 = 'application/vnd.docker.distribution.manifest.v1+json';
     case IMAGE_MANIFEST_V1_SIGNED = 'application/vnd.docker.distribution.manifest.v1+prettyjws';
     case IMAGE_MANIFEST_V2 = 'application/vnd.docker.distribution.manifest.v2+json';
-    case IMAGE_MANIFEST_V2_LIST = 'application/vnd.docker.distribution.manifest.list.v2+json';
 
     // Container config
     case CONTAINER_CONFIG_V1 = 'application/vnd.docker.container.image.v1+json';
 
-    // Image Index Media Types
+    // Manifest List Media Types
     case IMAGE_INDEX_V1 = 'application/vnd.oci.image.index.v1+json';
+    case IMAGE_MANIFEST_V2_LIST = 'application/vnd.docker.distribution.manifest.list.v2+json';
 
     // Image Config Media Types
     case IMAGE_CONFIG_V1 = 'application/vnd.oci.image.config.v1+json';
@@ -26,13 +26,11 @@ enum MediaType: string
     case IMAGE_LAYER_V1_TAR = 'application/vnd.oci.image.layer.v1.tar';
     case IMAGE_LAYER_V1_TAR_GZIP = 'application/vnd.oci.image.layer.v1.tar+gzip';
     case IMAGE_LAYER_V1_TAR_ZSTD = 'application/vnd.oci.image.layer.v1.tar+zstd';
-
-    // Image RootFS Media Types
     case IMAGE_ROOTFS_DIFF_TAR_GZIP = 'application/vnd.docker.image.rootfs.diff.tar.gzip';
+    case IMAGE_ROOTFS_FOREIGN_TAR_GZIP = 'application/vnd.docker.image.rootfs.foreign.tar.gzip';
 
     // Other Media Types
     case EMPTY_JSON = 'application/vnd.oci.empty.v1+json';
-
     case OCTET_STREAM = 'application/octet-stream';
 
     // Custom Media Type
@@ -87,7 +85,7 @@ enum MediaType: string
     /**
      * Check if the media type is for an image manifest list (possibly multiple images).
      */
-    public function isImageManifestList(): bool
+    public function isManifestList(): bool
     {
         return $this === self::IMAGE_INDEX_V1
             || $this === self::IMAGE_MANIFEST_V2_LIST;

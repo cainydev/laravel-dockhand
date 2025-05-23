@@ -1,6 +1,6 @@
 <?php
 
-namespace Cainy\Dockhand\Resources;
+namespace Cainy\Dockhand\Helpers;
 
 use Cainy\Dockhand\Facades\TokenService;
 use DateTimeImmutable;

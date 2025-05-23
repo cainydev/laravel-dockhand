@@ -2,7 +2,7 @@
 
 namespace Cainy\Dockhand\Events;
 
-use Cainy\Dockhand\Resources\MediaType;
+use Cainy\Dockhand\Enums\MediaType;
 
 abstract class RegistryEvent extends RegistryBaseEvent
 {
@@ -29,7 +29,7 @@ abstract class RegistryEvent extends RegistryBaseEvent
         $this->targetMediaType = MediaType::from($data['target']['mediaType']);
         $this->targetSize = $data['target']['size'];
         $this->targetUrl = $data['target']['url'];
-        
+
         if (isset($data['target']['tag'])) {
             $this->targetTag = $data['target']['tag'];
         } else {

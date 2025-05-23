@@ -2,6 +2,7 @@
 
 namespace Cainy\Dockhand;
 
+use Cainy\Dockhand\Actions\ManagesBlobs;
 use Cainy\Dockhand\Actions\ManagesManifests;
 use Cainy\Dockhand\Actions\ManagesRegistry;
 use Cainy\Dockhand\Actions\ManagesRepositories;
@@ -12,7 +13,8 @@ class Dockhand
 {
     use ManagesManifests,
         ManagesRegistry,
-        ManagesRepositories;
+        ManagesRepositories,
+        ManagesBlobs;
 
     /**
      * The base URL of the registry.

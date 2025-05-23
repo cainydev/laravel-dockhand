@@ -2,8 +2,8 @@
 
 namespace Cainy\Dockhand\Facades;
 
-use Cainy\Dockhand\Resources\Scope as ScopeResource;
-use Cainy\Dockhand\Resources\ScopeResourceType;
+use Cainy\Dockhand\Enums\ScopeResourceType;
+use Cainy\Dockhand\Helpers\Scope as ScopeResource;
 use Illuminate\Support\Facades\Facade;
 
 /**

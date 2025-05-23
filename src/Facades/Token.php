@@ -2,8 +2,8 @@
 
 namespace Cainy\Dockhand\Facades;
 
-use Cainy\Dockhand\Resources\Scope;
-use Cainy\Dockhand\Resources\Token as TokenResource;
+use Cainy\Dockhand\Helpers\Scope;
+use Cainy\Dockhand\Helpers\Token as TokenResource;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
 use Lcobucci\JWT\UnencryptedToken;

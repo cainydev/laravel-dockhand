@@ -2,24 +2,38 @@
 
 namespace Cainy\Dockhand\Actions;
 
+use Cainy\Dockhand\Enums\MediaType;
 use Cainy\Dockhand\Facades\Scope;
 use Cainy\Dockhand\Facades\Token;
-use Cainy\Dockhand\Resources\ManifestResource;
-use Cainy\Dockhand\Resources\MediaType;
+use Cainy\Dockhand\Resources\ImageManifest;
+use Cainy\Dockhand\Resources\ManifestList;
+use Cainy\Dockhand\Resources\ManifestListEntry;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 
 trait ManagesManifests
 {
     /**
+     * Get a manifest from a manifest list entry.
+     *
+     * @param ManifestListEntry $entry The manifest list entry to get the manifest from.
+     * @return ImageManifest|ManifestList|null The manifest resource, or null if not found.
+     * @throws Exception If there's an issue with the request or response processing (other than 404).
+     */
+    public function getManifestFromManifestListEntry(ManifestListEntry $entry): ImageManifest|ManifestList|null
+    {
+        return $this->getManifest($entry->repository, $entry->digest);
+    }
+
+    /**
      * Get a manifest from the registry.
      *
      * @param string $repository The full repository name (e.g., "john/busybox").
      * @param string $reference The tag or digest.
-     * @return ManifestResource|null The manifest resource, or null if not found.
+     * @return ImageManifest|ManifestList|null The manifest resource, or null if not found.
      * @throws Exception If there's an issue with the request or response processing (other than 404).
      */
-    public function getManifest(string $repository, string $reference): ?ManifestResource
+    public function getManifest(string $repository, string $reference): ImageManifest|ManifestList|null
     {
         try {
             $response = $this->request()
@@ -65,15 +79,18 @@ trait ManagesManifests
             throw new Exception("Registry did not provide 'Docker-Content-Digest' or 'ETag' header for manifest {$repository}:{$reference}.");
         }
 
-        try {
-            return new ManifestResource(
-                $repository,
-                $reference,
-                $actualDigest,
-                $manifestData
-            );
-        } catch (Exception $e) {
-            throw new Exception("Error constructing ManifestResource for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
+        if (empty($manifestData['mediaType'])) {
+            throw new Exception("Manifest for {$repository}:{$reference} does not contain 'mediaType' field.");
+        }
+
+        $mediaType = MediaType::from($manifestData['mediaType']);
+
+        if ($mediaType->isManifestList()) {
+            return ManifestList::parse($repository, $manifestData);
+        } elseif ($mediaType->isImageManifest()) {
+            return ImageManifest::parse($repository, $manifestData);
+        } else {
+            throw new Exception("Unsupported media type '{$mediaType->toString()}' for manifest {$repository}:{$reference}.");
         }
     }
 }

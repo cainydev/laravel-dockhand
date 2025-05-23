@@ -1,7 +1,8 @@
 <?php
 
-namespace Cainy\Dockhand\Resources;
+namespace Cainy\Dockhand\Helpers;
 
+use Cainy\Dockhand\Enums\ScopeResourceType;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 use function implode;

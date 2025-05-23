@@ -2,8 +2,8 @@
 
 namespace Cainy\Dockhand\Actions;
 
+use Cainy\Dockhand\Enums\RegistryApiVersion;
 use Cainy\Dockhand\Facades\Token;
-use Cainy\Dockhand\Resources\RegistryApiVersion;
 use Illuminate\Http\Client\ConnectionException;
 
 trait ManagesRegistry

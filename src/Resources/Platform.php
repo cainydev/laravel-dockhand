@@ -1,98 +1,122 @@
 <?php
 
-namespace Cainy\Dockhand\Enums;
-// Or your preferred namespace for enums
+namespace Cainy\Dockhand\Resources;
 
-enum Platform: string
+use Illuminate\Support\Collection;
+
+readonly class Platform
 {
-    case AIX_PPC64 = 'aix/ppc64';
-    case ANDROID_386 = 'android/386';
-    case ANDROID_AMD64 = 'android/amd64';
-    case ANDROID_ARM = 'android/arm';
-    case ANDROID_ARM64 = 'android/arm64';
-    case DARWIN_AMD64 = 'darwin/amd64';
-    case DARWIN_ARM64 = 'darwin/arm64';
-    case DRAGONFLY_AMD64 = 'dragonfly/amd64';
-    case FREEBSD_386 = 'freebsd/386';
-    case FREEBSD_AMD64 = 'freebsd/amd64';
-    case FREEBSD_ARM = 'freebsd/arm';
-    case ILLUMOS_AMD64 = 'illumos/amd64';
-    case IOS_ARM64 = 'ios/arm64';
-    case JS_WASM = 'js/wasm';
-    case LINUX_386 = 'linux/386';
-    case LINUX_AMD64 = 'linux/amd64';
-    case LINUX_ARM = 'linux/arm';
-    case LINUX_ARM64 = 'linux/arm64';
-    case LINUX_LOONG64 = 'linux/loong64';
-    case LINUX_MIPS = 'linux/mips';
-    case LINUX_MIPSLE = 'linux/mipsle';
-    case LINUX_MIPS64 = 'linux/mips64';
-    case LINUX_MIPS64LE = 'linux/mips64le';
-    case LINUX_PPC64 = 'linux/ppc64';
-    case LINUX_PPC64LE = 'linux/ppc64le';
-    case LINUX_RISCV64 = 'linux/riscv64';
-    case LINUX_S390X = 'linux/s390x';
-    case NETBSD_386 = 'netbsd/386';
-    case NETBSD_AMD64 = 'netbsd/amd64';
-    case NETBSD_ARM = 'netbsd/arm';
-    case OPENBSD_386 = 'openbsd/386';
-    case OPENBSD_AMD64 = 'openbsd/amd64';
-    case OPENBSD_ARM = 'openbsd/arm';
-    case OPENBSD_ARM64 = 'openbsd/arm64';
-    case PLAN9_386 = 'plan9/386';
-    case PLAN9_AMD64 = 'plan9/amd64';
-    case PLAN9_ARM = 'plan9/arm';
-    case SOLARIS_AMD64 = 'solaris/amd64';
-    case WASIP1_WASM = 'wasip1/wasm';
-    case WINDOWS_386 = 'windows/386';
-    case WINDOWS_AMD64 = 'windows/amd64';
-    case WINDOWS_ARM = 'windows/arm';
-    case WINDOWS_ARM64 = 'windows/arm64';
+    /**
+     * The operating system of this platform.
+     */
+    public string $os;
 
     /**
-     * Create a Platform enum instance from OS and architecture strings.
+     * The architecture of this platform.
+     */
+    public string $architecture;
+
+    /**
+     * The variant of this platform.
+     * @var string|null
+     */
+    public ?string $variant;
+
+    /**
+     * The features of this platform.
+     * @var Collection<string>
+     */
+    public Collection $features;
+
+    /**
+     * Create a new Platform instance.
      *
      * @param string $os
      * @param string $architecture
-     * @return self|null Returns the matching enum case or null if no match is found.
+     * @param string|null $variant
+     * @param ?Collection<string> $features
      */
-    public static function fromOsArch(string $os, string $architecture): ?self
+    public function __construct(string $os, string $architecture, ?string $variant = null, ?Collection $features = null)
     {
-        $platformString = strtolower(trim($os) . '/' . trim($architecture));
-        return self::tryFrom($platformString);
+        $this->os = $os;
+        $this->architecture = $architecture;
+        $this->variant = $variant;
+        $this->features = collect($features);
     }
 
     /**
-     * Get an array of all platform strings (os/arch).
-     * @return string[]
+     * Create a new Platform instance.
+     *
+     * @param string $os
+     * @param string $architecture
+     * @param string|null $variant
+     * @param ?Collection<string> $features
+     * @return self
      */
-    public static function allValues(): array
+    public static function create(string $os, string $architecture, ?string $variant = null, ?Collection $features = null): self
     {
-        return array_column(self::cases(), 'value');
+        return new self($os, $architecture, $variant, $features);
     }
 
     /**
-     * Get the Operating System part of the platform string.
+     * Parse a platform from an array.
+     *
+     * @param array $data
+     * @return ?self
      */
-    public function os(): string
+    public static function parse(array $data): ?self
     {
-        return explode('/', $this->value)[0];
+        $os = (string)($data['os']);
+        $architecture = (string)($data['architecture']);
+        $variant = (string)($data['variant'] ?? null);
+        $features = collect($data['features']);
+
+        if (empty($os) || empty($architecture)) {
+            return null;
+        }
+
+        return new self($os, $architecture, $variant, $features);
     }
 
     /**
-     * Get the Architecture part of the platform string.
-     */
-    public function architecture(): string
-    {
-        // The second part is always the architecture in the provided list
-        return explode('/', $this->value)[1];
-    }
-
-    /**
-     * Get the full platform string (os/arch).
+     * Get the full platform string as os/arch(/variant).
      */
     public function toString(): string
     {
-        return $this->value;
+        return $this->os . '/' . $this->architecture . (!empty($this->variant) ? '/' . $this->variant : '');
+    }
+
+    /**
+     * Check if the platform is valid. Source https://go.dev/doc/install/source#environment.
+     *
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        if (empty($this->os) || empty($this->architecture)) return false;
+
+        $validCombinations = collect([
+            'aix' => ['ppc64'],
+            'android' => ['386', 'amd64', 'arm', 'arm64'],
+            'darwin' => ['amd64', 'arm64'],
+            'dragonfly' => ['amd64'],
+            'freebsd' => ['386', 'amd64', 'arm'],
+            'illumos' => ['amd64'],
+            'ios' => ['arm64'],
+            'js' => ['wasm'],
+            'linux' => ['386', 'amd64', 'arm', 'arm64', 'loong64', 'mips', 'mipsle', 'mips64', 'mips64le', 'ppc64', 'ppc64le', 'riscv64', 's390x'],
+            'netbsd' => ['386', 'amd64', 'arm'],
+            'openbsd' => ['386', 'amd64', 'arm', 'arm64'],
+            'plan9' => ['386', 'amd64', 'arm'],
+            'solaris' => ['amd64'],
+            'wasip1' => ['wasm'],
+            'windows' => ['386', 'amd64', 'arm', 'arm64'],
+        ]);
+
+        if ($validCombinations->contains($this->os)) {
+            return in_array($this->architecture, $validCombinations->get($this->os));
+        } else {
+            return false;
+        }
     }
 }

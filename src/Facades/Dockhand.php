@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static bool isOnline()
- * @method static \Cainy\Dockhand\Resources\RegistryApiVersion getApiVersion()
+ * @method static \Cainy\Dockhand\Enums\RegistryApiVersion getApiVersion()
  * @method static \Illuminate\Support\Collection getCatalog()
  * @method static \Cainy\Dockhand\Resources\Repository getRepository(string $name)
  * @method static \Illuminate\Http\Client\PendingRequest request()

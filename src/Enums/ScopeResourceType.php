@@ -1,6 +1,6 @@
 <?php
 
-namespace Cainy\Dockhand\Resources;
+namespace Cainy\Dockhand\Enums;
 
 enum ScopeResourceType: string
 {

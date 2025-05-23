@@ -1,5 +1,6 @@
 <?php
 
+use Cainy\Dockhand\Enums\MediaType;
 use Cainy\Dockhand\Events\BlobDeletedEvent;
 use Cainy\Dockhand\Events\BlobMountedEvent;
 use Cainy\Dockhand\Events\BlobPulledEvent;
@@ -14,7 +15,6 @@ use Cainy\Dockhand\Exceptions\UnauthorizedException;
 use Cainy\Dockhand\Exceptions\UnknownException;
 use Cainy\Dockhand\Exceptions\UnsupportedException;
 use Cainy\Dockhand\Facades\TokenService;
-use Cainy\Dockhand\Resources\MediaType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Lcobucci\JWT\Validation\Constraint\HasClaimWithValue;
@@ -59,7 +59,7 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
                         continue 2;
                     }
 
-                    if ($mediaType->isImageManifest() || $mediaType->isImageManifestList()) {
+                    if ($mediaType->isImageManifest() || $mediaType->isManifestList()) {
                         Log::info("Dispatching ManifestPushedEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                         ManifestPushedEvent::dispatch($eventData);
                     } elseif ($mediaType->isImageLayer() || $mediaType->isImageConfig() || $mediaType->isCustom()) {
@@ -77,7 +77,7 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
                         continue 2;
                     }
 
-                    if ($mediaType->isImageManifest() || $mediaType->isImageManifestList()) {
+                    if ($mediaType->isImageManifest() || $mediaType->isManifestList()) {
                         Log::info("Dispatching ManifestPulledEvent for ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                         ManifestPulledEvent::dispatch($eventData);
                     } elseif ($mediaType->isImageLayer() || $mediaType->isImageConfig() || $mediaType->isCustom() || $mediaType === MediaType::CONTAINER_CONFIG_V1) {
@@ -93,7 +93,7 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
                     if ($mediaType === null || $mediaType->isImageLayer() || $mediaType->isImageConfig() || $mediaType->isCustom() || $mediaType === MediaType::CONTAINER_CONFIG_V1) {
                         Log::info("Dispatching BlobMountedEvent for ID: {$eventData['id']}" . ($mediaType ? " (MediaType: {$mediaType->value})" : " (MediaType: null)"));
                         BlobMountedEvent::dispatch($eventData);
-                    } elseif ($mediaType->isImageManifest() || $mediaType->isImageManifestList()) {
+                    } elseif ($mediaType->isImageManifest() || $mediaType->isManifestList()) {
                         Log::error("MOUNT event received for a manifest/index mediaType '{$mediaType->value}'. This is unexpected. Skipping. Event ID: {$eventData['id']}");
                         continue 2;
                     } else {
@@ -107,7 +107,7 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
                         Log::info("Dispatching TagDeletedEvent for tag: {$target['tag']}, Repo: {$target['repository']}. Event ID: {$eventData['id']}");
                         TagDeletedEvent::dispatch($eventData);
                     } elseif (!empty($target['digest'])) {
-                        if ($mediaType && ($mediaType->isImageManifest() || $mediaType->isImageManifestList())) {
+                        if ($mediaType && ($mediaType->isImageManifest() || $mediaType->isManifestList())) {
                             Log::info("Dispatching ManifestDeletedEvent for digest: {$target['digest']}, Repo: {$target['repository']}. Event ID: {$eventData['id']} (MediaType: {$mediaType->value})");
                             ManifestDeletedEvent::dispatch($eventData);
                         } else {
