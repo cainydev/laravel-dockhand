@@ -24,7 +24,10 @@ class DockhandServiceProvider extends PackageServiceProvider
             return new Dockhand(
                 config('dockhand.base_uri'),
                 config('dockhand.registry_name'),
-                config('dockhand.authority_name'));
+                config('dockhand.authority_name'),
+                config('dockhand.logging.driver'),
+                config('dockhand.logging.level')
+            );
         });
     }
 

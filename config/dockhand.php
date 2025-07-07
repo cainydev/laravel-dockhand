@@ -42,6 +42,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Logging
+    |--------------------------------------------------------------------------
+    |
+    | If you want to set a specific log driver for dockhand, this is the
+    | place. If the driver is set to null, logging is disabled.
+    |
+    */
+
+    'logging' => [
+        'driver' => env('DOCKHAND_LOG_DRIVER', 'stack'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Notifications settings
     |--------------------------------------------------------------------------
     |
@@ -51,7 +65,7 @@ return [
     | trigger the appropriate events in the application.
     |
     */
-    
+
     'notifications' => [
         'enabled' => env('DOCKHAND_NOTIFICATIONS_ENABLED', true),
         'route' => env('DOCKHAND_NOTIFICATIONS_ROUTE', '/dockhand/notify'),
