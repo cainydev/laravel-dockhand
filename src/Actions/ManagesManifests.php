@@ -35,6 +35,11 @@ trait ManagesManifests
      */
     public function getManifest(string $repository, string $reference): ImageManifest|ManifestList|null
     {
+        $this->logger()->debug("[ManagesManifests] Getting manifest", [
+            'repository' => $repository,
+            'reference' => $reference,
+        ]);
+
         try {
             $response = $this->request()
                 ->withToken(Token::withScope(Scope::readRepository($repository))
@@ -66,16 +71,24 @@ trait ManagesManifests
             throw new Exception("Failed to decode manifest JSON for {$repository}:{$reference}. Response Body: " . $response->body());
         }
 
-        $actualDigest = $response->header('Docker-Content-Digest');
+        $this->logger()->debug("[ManagesManifests] Parsed manifest data from json", $manifestData);
 
-        if (empty($actualDigest)) {
-            $actualDigest = $response->header('ETag');
-            if ($actualDigest) {
-                $actualDigest = trim($actualDigest, '"W/');
+        $digest = $response->header('Docker-Content-Digest');
+
+        if (empty($digest)) {
+            $this->logger()->debug("[ManagesManifests] Docker-Content-Digest header was empty", $response->headers());
+            $digest = $response->header('ETag');
+            if ($digest) {
+                $digest = trim($digest, '"W/');
+
+                $this->logger()->debug("[ManagesManifests] Got it instead from ETag header", [
+                    'header' => $response->header('ETag'),
+                    'parsed' => $digest,
+                ]);
             }
         }
 
-        if (empty($actualDigest)) {
+        if (empty($digest)) {
             throw new Exception("Registry did not provide 'Docker-Content-Digest' or 'ETag' header for manifest {$repository}:{$reference}.");
         }
 
@@ -86,9 +99,11 @@ trait ManagesManifests
         $mediaType = MediaType::from($manifestData['mediaType']);
 
         if ($mediaType->isManifestList()) {
-            return ManifestList::parse($repository, $manifestData);
+            $this->logger()->debug("[ManagesManifests] Trying to parse ManifestList from data", $manifestData);
+            return ManifestList::parse($repository, $digest, $manifestData);
         } elseif ($mediaType->isImageManifest()) {
-            return ImageManifest::parse($repository, $manifestData);
+            $this->logger()->debug("[ManagesManifests] Trying to parse ImageManifest from data", $manifestData);
+            return ImageManifest::parse($repository, $digest, $manifestData);
         } else {
             throw new Exception("Unsupported media type '{$mediaType->toString()}' for manifest {$repository}:{$reference}.");
         }

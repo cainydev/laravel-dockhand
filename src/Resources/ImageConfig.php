@@ -4,8 +4,10 @@ namespace Cainy\Dockhand\Resources;
 
 use Cainy\Dockhand\Enums\MediaType;
 use Carbon\Carbon;
+use Illuminate\Contracts\Support\Arrayable;
+use JsonSerializable;
 
-readonly class ImageConfig
+readonly class ImageConfig implements Arrayable, JsonSerializable
 {
     /**
      * The repository this image config belongs to.
@@ -86,4 +88,29 @@ readonly class ImageConfig
         return new self($repository, $digest, $mediaType, $platform, $created);
     }
 
+    /**
+     * Specify data which should be serialized to JSON
+     *
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'repository' => $this->repository,
+            'digest' => $this->digest,
+            'mediaType' => $this->mediaType->toString(),
+            'platform' => $this->platform->toArray(),
+            'created' => $this->created->toIso8601String(),
+        ];
+    }
 }

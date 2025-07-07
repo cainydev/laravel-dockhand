@@ -2,9 +2,11 @@
 
 namespace Cainy\Dockhand\Resources;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
+use JsonSerializable;
 
-readonly class Platform
+readonly class Platform implements Arrayable, JsonSerializable
 {
     /**
      * The operating system of this platform.
@@ -69,7 +71,7 @@ readonly class Platform
         $os = (string)($data['os']);
         $architecture = (string)($data['architecture']);
         $variant = (string)($data['variant'] ?? null);
-        $features = collect($data['features']);
+        $features = collect($data['features'] ?? []);
 
         if (empty($os) || empty($architecture)) {
             return null;
@@ -118,5 +120,30 @@ readonly class Platform
         } else {
             return false;
         }
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     *
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'os' => $this->os,
+            'architecture' => $this->architecture,
+            'variant' => $this->variant,
+            'features' => $this->features->toArray()
+        ];
     }
 }
