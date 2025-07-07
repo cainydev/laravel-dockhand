@@ -17,6 +17,7 @@ use Cainy\Dockhand\Exceptions\UnsupportedException;
 use Cainy\Dockhand\Facades\TokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint\HasClaimWithValue;
 
 Route::post(config('dockhand.notifications.route'), function (Request $request) {
@@ -24,8 +25,8 @@ Route::post(config('dockhand.notifications.route'), function (Request $request) 
         throw new UnauthorizedException('Bearer token required.');
     }
 
-    if (!TokenService::validateToken($request->bearerToken(), function ($validator, $token) {
-        $validator->assert($token, new HasClaimWithValue('access', 'notify'));
+    if (!TokenService::validateToken($request->bearerToken(), function (\Lcobucci\JWT\Validator $validator, Token $token) {
+        $validator->assert($token, new HasClaimWithValue('access', ['notify']));
     })) {
         throw new UnauthorizedException('Bearer token invalid or lacks required "notify" access.');
     }
