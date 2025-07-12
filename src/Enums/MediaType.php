@@ -8,6 +8,7 @@ use ValueError;
 enum MediaType: string
 {
     // Image Manifest Media Types
+    case OCI_IMAGE_MANIFEST_V1 = 'application/vnd.oci.image.manifest.v1+json';
     case IMAGE_MANIFEST_V1 = 'application/vnd.docker.distribution.manifest.v1+json';
     case IMAGE_MANIFEST_V1_SIGNED = 'application/vnd.docker.distribution.manifest.v1+prettyjws';
     case IMAGE_MANIFEST_V2 = 'application/vnd.docker.distribution.manifest.v2+json';
@@ -61,6 +62,7 @@ enum MediaType: string
             self::IMAGE_MANIFEST_V1_SIGNED->toString(),
             self::IMAGE_MANIFEST_V2->toString(),
             self::IMAGE_MANIFEST_V2_LIST->toString(),
+            self::OCI_IMAGE_MANIFEST_V1->toString()
         ]);
     }
 
@@ -79,7 +81,8 @@ enum MediaType: string
     {
         return $this === self::IMAGE_MANIFEST_V1
             || $this === self::IMAGE_MANIFEST_V1_SIGNED
-            || $this === self::IMAGE_MANIFEST_V2;
+            || $this === self::IMAGE_MANIFEST_V2
+            || $this === self::OCI_IMAGE_MANIFEST_V1;
     }
 
     /**
