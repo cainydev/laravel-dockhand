@@ -82,7 +82,7 @@ class Token
      */
     public function withClaim(string $name, mixed $value): static
     {
-        if ($name == 'access') {
+        if ($name === 'access') {
             $this->access[] = $value;
         } else {
             $this->builder = $this->builder->withClaim($name, $value);

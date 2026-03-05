@@ -118,7 +118,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
     public function toArray(): array
     {
         return [
-            parent::toArray(),
+            ...parent::toArray(),
             'config' => $this->config->toArray(),
             'layers' => $this->layers->toArray(),
         ];

@@ -116,7 +116,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
     public function toArray(): array
     {
         return [
-            parent::toArray(),
+            ...parent::toArray(),
             'manifests' => $this->manifests->toArray(),
         ];
     }

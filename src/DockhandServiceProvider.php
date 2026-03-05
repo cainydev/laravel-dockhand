@@ -26,7 +26,6 @@ class DockhandServiceProvider extends PackageServiceProvider
                 config('dockhand.registry_name'),
                 config('dockhand.authority_name'),
                 config('dockhand.logging.driver'),
-                config('dockhand.logging.level')
             );
         });
     }

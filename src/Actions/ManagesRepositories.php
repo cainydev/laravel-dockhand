@@ -2,8 +2,10 @@
 
 namespace Cainy\Dockhand\Actions;
 
-use Cainy\Dockhand\Helpers\Scope;
-use Cainy\Dockhand\Helpers\Token;
+use Cainy\Dockhand\Exceptions\PaginationNumberInvalidException;
+use Cainy\Dockhand\Facades\Scope;
+use Cainy\Dockhand\Facades\Token;
+use Cainy\Dockhand\Resources\PaginatedResult;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Collection;
 use function collect;
@@ -14,37 +16,120 @@ trait ManagesRepositories
     /**
      * Get a list of all the repositories in the registry.
      *
-     * @return Collection<string>
+     * @param int|null $limit Maximum number of results per page. Null for no pagination.
+     * @param string|null $last The last repository name from a previous paginated response.
+     * @return Collection<string>|PaginatedResult Collection when not paginating, PaginatedResult when $limit is set.
+     * @throws PaginationNumberInvalidException If $limit is less than 1.
      * @throws ConnectionException
      */
-    public function getRepositories(): Collection
+    public function getRepositories(?int $limit = null, ?string $last = null): Collection|PaginatedResult
     {
+        if ($limit !== null && $limit < 1) {
+            throw new PaginationNumberInvalidException("Pagination limit must be at least 1, got {$limit}.");
+        }
+
+        $url = '/_catalog';
+        $query = [];
+
+        if ($limit !== null) {
+            $query['n'] = $limit;
+        }
+
+        if ($last !== null) {
+            $query['last'] = $last;
+        }
+
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query);
+        }
+
         $response = $this->request()
-            ->withToken(\Cainy\Dockhand\Facades\Token::withScope(\Cainy\Dockhand\Facades\Scope::catalog())
+            ->withToken(Token::withScope(Scope::catalog())
                 ->issuedBy($this->authorityName)
                 ->permittedFor($this->registryName)
                 ->expiresAt(now()->addMinutes(2))
                 ->toString())
-            ->get('/_catalog');
+            ->get($url);
 
-        return collect($response['repositories']);
+        $items = collect($response['repositories']);
+
+        if ($limit === null) {
+            return $items;
+        }
+
+        return new PaginatedResult(
+            $items,
+            $this->parseLinkHeader($response->header('Link')),
+        );
     }
 
     /**
      * Get a list of all the tags in the repository.
      *
      * @param string $repository The full repository name (e.g., "john/busybox").
-     * @return Collection<string>
+     * @param int|null $limit Maximum number of results per page. Null for no pagination.
+     * @param string|null $last The last tag name from a previous paginated response.
+     * @return Collection<string>|PaginatedResult Collection when not paginating, PaginatedResult when $limit is set.
+     * @throws PaginationNumberInvalidException If $limit is less than 1.
      * @throws ConnectionException
      */
-    public function getTagsOfRepository(string $repository): Collection
+    public function getTagsOfRepository(string $repository, ?int $limit = null, ?string $last = null): Collection|PaginatedResult
     {
-        return collect($this->request()
+        if ($limit !== null && $limit < 1) {
+            throw new PaginationNumberInvalidException("Pagination limit must be at least 1, got {$limit}.");
+        }
+
+        $url = "/{$repository}/tags/list";
+        $query = [];
+
+        if ($limit !== null) {
+            $query['n'] = $limit;
+        }
+
+        if ($last !== null) {
+            $query['last'] = $last;
+        }
+
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query);
+        }
+
+        $response = $this->request()
             ->withToken(Token::withScope(Scope::readRepository($repository))
                 ->issuedBy($this->authorityName)
                 ->permittedFor($this->registryName)
                 ->expiresAt(now()->addMinutes(2))
                 ->toString())
-            ->get("/$repository/tags/list")['tags']);
+            ->get($url);
+
+        $items = collect($response['tags']);
+
+        if ($limit === null) {
+            return $items;
+        }
+
+        return new PaginatedResult(
+            $items,
+            $this->parseLinkHeader($response->header('Link')),
+        );
+    }
+
+    /**
+     * Parse an RFC5988 Link header to extract the "next" URL.
+     *
+     * @param string|null $header The Link header value.
+     * @return string|null The next URL, or null if not present.
+     */
+    private function parseLinkHeader(?string $header): ?string
+    {
+        if (empty($header)) {
+            return null;
+        }
+
+        if (preg_match('/<([^>]+)>;\s*rel="next"/', $header, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 }

@@ -116,7 +116,7 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
         return [
             'repository' => $this->repository,
             'digest' => $this->digest,
-            'mediaType' => $this->mediaType,
+            'mediaType' => $this->mediaType->toString(),
             'size' => $this->size,
             'urls' => $this->urls,
         ];

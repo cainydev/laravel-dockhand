@@ -70,7 +70,7 @@ readonly class Platform implements Arrayable, JsonSerializable
     {
         $os = (string)($data['os']);
         $architecture = (string)($data['architecture']);
-        $variant = (string)($data['variant'] ?? null);
+        $variant = isset($data['variant']) ? (string) $data['variant'] : null;
         $features = collect($data['features'] ?? []);
 
         if (empty($os) || empty($architecture)) {
@@ -115,7 +115,7 @@ readonly class Platform implements Arrayable, JsonSerializable
             'windows' => ['386', 'amd64', 'arm', 'arm64'],
         ]);
 
-        if ($validCombinations->contains($this->os)) {
+        if ($validCombinations->has($this->os)) {
             return in_array($this->architecture, $validCombinations->get($this->os));
         } else {
             return false;

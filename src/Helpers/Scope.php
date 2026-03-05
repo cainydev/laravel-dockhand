@@ -228,6 +228,22 @@ class Scope implements Arrayable, JsonSerializable
         return $instance;
     }
 
+    /**
+     * Factory method to create a new scope for a repo with delete access.
+     *
+     * @param string $repo The name of the repository.
+     * @return Scope
+     */
+    public function deleteRepository(string $repo): static
+    {
+        $instance = new static();
+        $instance->type = ScopeResourceType::Repository;
+        $instance->name = $repo;
+        $instance->allowDelete();
+
+        return $instance;
+    }
+
     public function allowPushAndPull(): static
     {
         $this->allowPull = true;
@@ -318,7 +334,7 @@ class Scope implements Arrayable, JsonSerializable
         return [
             'type' => $this->type->value,
             'name' => $this->name,
-            'actions' => $this->allowAll() ? ['*'] : $this->actions,
+            'actions' => ($this->allowPull && $this->allowPush && $this->allowDelete) ? ['*'] : $this->actions,
         ];
     }
 
