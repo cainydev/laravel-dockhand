@@ -1,0 +1,37 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 11
+			path: config/dockhand.php
+
+		-
+			message: '#^Consider using bind method instead or pass a closure\.$#'
+			identifier: larastan.octaneCompatibility
+			count: 1
+			path: src/DockhandServiceProvider.php
+
+		-
+			message: '#^Instanceof between string and Closure will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Facades/Scope.php
+
+		-
+			message: '#^Instanceof between string and Closure will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Facades/Token.php
+
+		-
+			message: '#^PHPDoc tag @return with type Cainy\\Dockhand\\Helpers\\Scope is not subtype of native type static\(Cainy\\Dockhand\\Helpers\\Scope\)\.$#'
+			identifier: return.phpDocType
+			count: 4
+			path: src/Helpers/Scope.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 6
+			path: src/Helpers/Scope.php

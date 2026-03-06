@@ -23,6 +23,9 @@
     <logging>
         <junit outputFile="build/report.junit.xml"/>
     </logging>
+    <php>
+        <ini name="error_reporting" value="24575"/>
+    </php>
     <source>
         <include>
             <directory suffix=".php">./src</directory>
