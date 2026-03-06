@@ -1,5 +1,7 @@
 # Laravel Dockhand
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/cainy/laravel-dockhand.svg?style=flat-square)](https://packagist.org/packages/cainy/laravel-dockhand)
+[![Total Downloads](https://img.shields.io/packagist/dt/cainy/laravel-dockhand.svg?style=flat-square)](https://packagist.org/packages/cainy/laravel-dockhand)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/cainydev/laravel-dockhand/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/cainydev/laravel-dockhand/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/cainydev/laravel-dockhand/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/cainydev/laravel-dockhand/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![GitHub PHPStan Action Status](https://img.shields.io/github/actions/workflow/status/cainydev/laravel-dockhand/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/cainydev/laravel-dockhand/actions?query=workflow%3APHPStan+branch%3Amain)
