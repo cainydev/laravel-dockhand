@@ -11,6 +11,9 @@ use function in_array;
 /**
  * Manages Docker registry access scopes for authentication.
  */
+/**
+ * @implements Arrayable<string, mixed>
+ */
 class Scope implements Arrayable, JsonSerializable
 {
     /**
@@ -39,7 +42,7 @@ class Scope implements Arrayable, JsonSerializable
     protected bool $allowDelete = false;
 
     /**
-     * @var array Allowed actions.
+     * @var array<int, string> Allowed actions.
      */
     protected array $actions {
         get {
@@ -135,7 +138,7 @@ class Scope implements Arrayable, JsonSerializable
      */
     public function allowPull(?bool $enabled = true): static
     {
-        $this->allowPull = $enabled;
+        $this->allowPull = $enabled ?? false;
         return $this;
     }
 
@@ -321,13 +324,13 @@ class Scope implements Arrayable, JsonSerializable
      */
     public function toJson(int $options = 0): string
     {
-        return json_encode($this->toArray(), $options);
+        return json_encode($this->toArray(), $options) ?: '';
     }
 
     /**
      * Convert the scope to an array.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -341,7 +344,7 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Define how the scope should be serialized to JSON.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -371,7 +374,7 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Get the actions of the scope.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getActions(): array
     {
@@ -381,7 +384,7 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Overwrite the actions with the given array.
      *
-     * @param array $actions
+     * @param array<int, string> $actions
      * @return $this
      */
     public function setActions(array $actions): static

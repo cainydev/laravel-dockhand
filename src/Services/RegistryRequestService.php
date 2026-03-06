@@ -11,6 +11,7 @@ class RegistryRequestService
 
     protected int $timeout;
 
+    /** @var array<string, string> */
     protected array $defaultHeaders;
 
     public function __construct(string $baseUri, int $timeout = 30)

@@ -46,6 +46,10 @@ class TokenService
      */
     protected string $kid;
 
+    /**
+     * @param non-empty-string $privateKeyPath
+     * @param non-empty-string $publicKeyPath
+     */
     public function __construct(string $privateKeyPath, string $publicKeyPath)
     {
         $signer = new ES256;
@@ -69,15 +73,27 @@ class TokenService
     private static function generateKeyId(InMemory $privateKey): string
     {
         // Extract public key from private key
-        $privateKey = openssl_pkey_get_private($privateKey->contents());
-        $publicKeyContent = openssl_pkey_get_details($privateKey)['key'];
+        $privKey = openssl_pkey_get_private($privateKey->contents());
+
+        if ($privKey === false) {
+            throw new \RuntimeException('Failed to load private key');
+        }
+
+        $details = openssl_pkey_get_details($privKey);
+
+        if ($details === false) {
+            throw new \RuntimeException('Failed to get key details');
+        }
+
+        /** @var string $publicKeyContent */
+        $publicKeyContent = $details['key'];
 
         // Clean pem header and footer
         $pattern = '/-----BEGIN [^-]*-----\r?\n?|-----END [^-]*-----\r?\n?/';
-        $cleanedPem = trim(preg_replace($pattern, '', $publicKeyContent));
+        $cleanedPem = trim((string) preg_replace($pattern, '', $publicKeyContent));
 
         // Convert to der
-        $der = base64_decode(preg_replace('/\s+/', '', $cleanedPem));
+        $der = base64_decode((string) preg_replace('/\s+/', '', $cleanedPem));
 
         // Calculate digest
         $algorithm = hash_init('sha256');
@@ -122,6 +138,9 @@ class TokenService
 
     /**
      * Validate a token that was issued by this service.
+     */
+    /**
+     * @param non-empty-string $token
      */
     public function validateToken(string $token, Closure $closure): bool
     {

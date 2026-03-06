@@ -17,6 +17,7 @@ class Token
 {
     protected Builder $builder;
 
+    /** @var array<int, mixed> */
     protected array $access;
 
     /**
@@ -76,7 +77,7 @@ class Token
     /**
      * Add a custom claim.
      *
-     * @param string $name
+     * @param non-empty-string $name
      * @param mixed $value
      * @return static
      */
@@ -94,7 +95,7 @@ class Token
     /**
      * Set the subject (sub) claim.
      *
-     * @param string $subject
+     * @param non-empty-string $subject
      * @return static
      */
     public function relatedTo(string $subject): static
@@ -107,7 +108,7 @@ class Token
     /**
      * Set the issuer (iss) claim.
      *
-     * @param string $issuer
+     * @param non-empty-string $issuer
      * @return static
      */
     public function issuedBy(string $issuer): static
@@ -120,7 +121,7 @@ class Token
     /**
      * Set the audience (aud) claim.
      *
-     * @param string $audience
+     * @param non-empty-string $audience
      * @return static
      */
     public function permittedFor(string $audience): static
@@ -175,7 +176,7 @@ class Token
     /**
      * Add a custom header.
      *
-     * @param string $name
+     * @param non-empty-string $name
      * @param mixed $value
      * @return static
      */

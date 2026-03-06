@@ -65,7 +65,7 @@ abstract class RegistryBaseEvent
     /**
      * Base constructor for all registry events.
      *
-     * @param array $data Raw notification data from the registry webhook.
+     * @param array{id: string, timestamp: string, action: string, target: array{digest?: string, repository: string}, request: array{id: string, addr: string, host: string, method: string, useragent: string}, actor?: array{name: string}, source: array{addr: string, instanceID: string}} $data Raw notification data from the registry webhook.
      */
     public function __construct(array $data)
     {
@@ -73,21 +73,25 @@ abstract class RegistryBaseEvent
         $this->timestamp = Carbon::parse($data['timestamp']);
         $this->action = EventAction::from($data['action']);
 
-        $this->targetDigest = $data['target']['digest'] ?? null;
-        $this->targetRepository = $data['target']['repository'];
+        $target = $data['target'];
+        $this->targetDigest = $target['digest'] ?? null;
+        $this->targetRepository = $target['repository'];
 
-        $this->requestId = $data['request']['id'];
-        $this->requestAddr = $data['request']['addr'];
-        $this->requestHost = $data['request']['host'];
-        $this->requestMethod = $data['request']['method'];
-        $this->requestUserAgent = $data['request']['useragent'];
+        $request = $data['request'];
+        $this->requestId = $request['id'];
+        $this->requestAddr = $request['addr'];
+        $this->requestHost = $request['host'];
+        $this->requestMethod = $request['method'];
+        $this->requestUserAgent = $request['useragent'];
 
-        if (!empty($data['actor']))
+        if (!empty($data['actor'])) {
             $this->actorName = $data['actor']['name'];
-        else
+        } else {
             $this->actorName = null;
+        }
 
-        $this->sourceAddr = $data['source']['addr'];
-        $this->sourceInstanceId = $data['source']['instanceID'];
+        $source = $data['source'];
+        $this->sourceAddr = $source['addr'];
+        $this->sourceInstanceId = $source['instanceID'];
     }
 }
