@@ -28,10 +28,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool hasDelete() Check if the scope has delete access.
  * @method static string toString() Convert the scope to a registry-compatible string.
  * @method static string toJson(int $options = 0) Convert the scope to JSON.
- * @method static array toArray() Convert the scope to an array.
+ * @method static array<string, mixed> toArray() Convert the scope to an array.
  * @method static ScopeResourceType getResourceType() Get the resource type of the scope.
  * @method static string getResourceName() Get the resource name of the scope.
- * @method static array getActions() Get the actions of the scope.
+ * @method static array<int, string> getActions() Get the actions of the scope.
  *
  * @see ScopeResource
  */

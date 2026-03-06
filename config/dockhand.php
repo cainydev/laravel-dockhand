@@ -4,54 +4,71 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Base URI
+    | Default Connection
     |--------------------------------------------------------------------------
     |
-    | This is the base URI for the Docker registry API. It is used
-    | to make HTTP(s) requests to the Docker registry's API.
+    | The default registry connection to use. This connection will be used
+    | when no specific connection name is provided to the Dockhand facade.
     |
     */
 
-    'base_uri' => env('DOCKHAND_BASE_URI', 'http://localhost:5000/v2/'),
+    'default' => env('DOCKHAND_CONNECTION', 'default'),
 
     /*
     |--------------------------------------------------------------------------
-    | JWT Private and Public Keys
+    | Registry Connections
     |--------------------------------------------------------------------------
     |
-    | These are the paths to the private and public keys used for signing
-    | and verifying JWT tokens. The keys should be in PEM format.
+    | Configure one or more registry connections. Each connection is fully
+    | self-contained with its own driver, base URI, auth config, and logging.
+    |
+    | Supported drivers: "distribution", "zot"
+    | Supported auth drivers: "jwt", "basic", "bearer", "apikey", "null"
     |
     */
 
-    'jwt_private_key' => env('DOCKHAND_PRIVATE_KEY'),
-    'jwt_public_key' => env('DOCKHAND_PUBLIC_KEY'),
+    'connections' => [
+        'default' => [
+            'driver' => env('DOCKHAND_DRIVER', 'distribution'),
+            'base_uri' => env('DOCKHAND_BASE_URI', 'http://localhost:5000/v2/'),
+            'logging' => [
+                'driver' => env('DOCKHAND_LOG_DRIVER', 'stack'),
+            ],
+            'auth' => [
+                'driver' => env('DOCKHAND_AUTH_DRIVER', 'jwt'),
+                'jwt_private_key' => env('DOCKHAND_PRIVATE_KEY'),
+                'jwt_public_key' => env('DOCKHAND_PUBLIC_KEY'),
+                'authority_name' => env('DOCKHAND_AUTHORITY_NAME', 'auth'),
+                'registry_name' => env('DOCKHAND_REGISTRY_NAME', 'registry'),
+            ],
+        ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Authority and Registry Names
-    |--------------------------------------------------------------------------
-    |
-    | These are the names of the authority and registry used in
-    | the JWT tokens. You can put any name you want here.
-    |
-    */
+        // Example: second registry using Zot with basic auth
+        // 'zot-staging' => [
+        //     'driver' => 'zot',
+        //     'base_uri' => env('ZOT_STAGING_BASE_URI', 'http://localhost:5050/v2/'),
+        //     'logging' => [
+        //         'driver' => env('ZOT_STAGING_LOG_DRIVER', 'stack'),
+        //     ],
+        //     'auth' => [
+        //         'driver' => 'basic',
+        //         'username' => env('ZOT_STAGING_USERNAME'),
+        //         'password' => env('ZOT_STAGING_PASSWORD'),
+        //     ],
+        // ],
 
-    'authority_name' => env('DOCKHAND_AUTHORITY_NAME', 'auth'),
-    'registry_name' => env('DOCKHAND_REGISTRY_NAME', 'registry'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logging
-    |--------------------------------------------------------------------------
-    |
-    | If you want to set a specific log driver for dockhand, this is the
-    | place. If the driver is set to null, logging is disabled.
-    |
-    */
-
-    'logging' => [
-        'driver' => env('DOCKHAND_LOG_DRIVER', 'stack'),
+        // Example: third registry using Zot with API key
+        // 'zot-prod' => [
+        //     'driver' => 'zot',
+        //     'base_uri' => env('ZOT_PROD_BASE_URI'),
+        //     'logging' => [
+        //         'driver' => env('ZOT_PROD_LOG_DRIVER', 'stack'),
+        //     ],
+        //     'auth' => [
+        //         'driver' => 'apikey',
+        //         'api_key' => env('ZOT_PROD_API_KEY'),
+        //     ],
+        // ],
     ],
 
     /*
