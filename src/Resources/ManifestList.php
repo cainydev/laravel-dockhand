@@ -7,12 +7,15 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ManifestList extends ManifestResource implements Arrayable, JsonSerializable
 {
     /**
      * The manifests field contains a list of manifests for specific platforms.
      *
-     * @var Collection<ManifestListEntry>
+     * @var Collection<int, ManifestListEntry>
      */
     public Collection $manifests;
 
@@ -23,7 +26,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
      * @param string $digest
      * @param MediaType $mediaType
      * @param int $schemaVersion
-     * @param Collection<ManifestListEntry> $manifests
+     * @param Collection<int, ManifestListEntry> $manifests
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, Collection $manifests)
     {
@@ -38,7 +41,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
      * @param string $digest
      * @param MediaType $mediaType
      * @param int $schemaVersion
-     * @param Collection $manifests
+     * @param Collection<int, ManifestListEntry> $manifests
      * @return self
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, Collection $manifests): self
@@ -51,7 +54,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
      *
      * @param string $repository
      * @param string $digest
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return self
      */
     public static function parse(string $repository, string $digest, array $data): self
@@ -60,9 +63,14 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
             throw new \ParseError('Invalid manifest list data');
         }
 
-        $mediaType = MediaType::from($data['mediaType']);
-        $schemaVersion = (int)$data['schemaVersion'];
-        $manifests = collect($data['manifests'])->map(fn($m) => ManifestListEntry::parse($repository, $m));
+        /** @var string $mediaTypeValue */
+        $mediaTypeValue = $data['mediaType'];
+        $mediaType = MediaType::from($mediaTypeValue);
+        /** @var int $schemaVersion */
+        $schemaVersion = $data['schemaVersion'];
+        /** @var array<int, array<string, mixed>> $manifestsData */
+        $manifestsData = $data['manifests'];
+        $manifests = collect($manifestsData)->map(fn(array $m) => ManifestListEntry::parse($repository, $m));
 
         return new self($repository, $digest, $mediaType, $schemaVersion, $manifests);
     }
@@ -75,7 +83,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
      */
     public function findManifestListEntryByPlatform(Platform $platform): ?ManifestListEntry
     {
-        return $this->manifests->first(fn($m) => $m->platform === $platform);
+        return $this->manifests->first(fn(ManifestListEntry $m) => $m->platform === $platform);
     }
 
     /**

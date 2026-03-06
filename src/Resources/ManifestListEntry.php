@@ -6,6 +6,9 @@ use Cainy\Dockhand\Enums\MediaType;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ManifestListEntry implements Arrayable, JsonSerializable
 {
     /**
@@ -56,15 +59,25 @@ readonly class ManifestListEntry implements Arrayable, JsonSerializable
      * Parse a manifest list entry from an array.
      *
      * @param string $repository
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return self
      */
     public static function parse(string $repository, array $data): self
     {
-        $digest = (string)$data['digest'];
-        $mediaType = MediaType::from($data['mediaType']);
-        $size = (int)$data['size'];
-        $platform = Platform::parse($data['platform']);
+        /** @var string $digest */
+        $digest = $data['digest'];
+        /** @var string $mediaTypeValue */
+        $mediaTypeValue = $data['mediaType'];
+        $mediaType = MediaType::from($mediaTypeValue);
+        /** @var int $size */
+        $size = $data['size'];
+        /** @var array<string, mixed> $platformData */
+        $platformData = $data['platform'];
+        $platform = Platform::parse($platformData);
+
+        if ($platform === null) {
+            throw new \ParseError('Invalid platform data in manifest list entry');
+        }
 
         return new self($repository, $digest, $mediaType, $size, $platform);
     }

@@ -6,6 +6,9 @@ use Cainy\Dockhand\Enums\MediaType;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 abstract readonly class ManifestResource implements Arrayable, JsonSerializable
 {
     /**

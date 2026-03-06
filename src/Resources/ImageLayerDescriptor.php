@@ -6,6 +6,9 @@ use Cainy\Dockhand\Enums\MediaType;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
 {
     /**
@@ -49,7 +52,7 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
      * @param string $digest
      * @param MediaType $mediaType
      * @param int $size
-     * @param array $urls
+     * @param array<string> $urls
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $size, array $urls = [])
     {
@@ -67,7 +70,7 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
      * @param string $digest
      * @param MediaType $mediaType
      * @param int $size
-     * @param array $urls
+     * @param array<string> $urls
      * @return self
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $size, array $urls = []): self
@@ -79,7 +82,7 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
      * Parse a Layer instance from an array.
      *
      * @param string $repository
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return self
      */
     public static function parse(string $repository, array $data): self
@@ -88,10 +91,15 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
             throw new \ParseError('Invalid layer data');
         }
 
-        $mediaType = MediaType::from($data['mediaType']);
-        $size = (int)($data['size']);
-        $digest = (string)($data['digest']);
-        $urls = (array)($data['urls'] ?? []);
+        /** @var string $mediaTypeValue */
+        $mediaTypeValue = $data['mediaType'];
+        $mediaType = MediaType::from($mediaTypeValue);
+        /** @var int $size */
+        $size = $data['size'];
+        /** @var string $digest */
+        $digest = $data['digest'];
+        /** @var array<string> $urls */
+        $urls = (array) ($data['urls'] ?? []);
 
         return new self($repository, $digest, $mediaType, $size, $urls);
     }

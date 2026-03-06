@@ -7,6 +7,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ImageManifest extends ManifestResource implements Arrayable, JsonSerializable
 {
     /**
@@ -17,7 +20,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
     /**
      * The layer reference list is ordered starting from the base image.
      *
-     * @var Collection<ImageLayerDescriptor>
+     * @var Collection<int, ImageLayerDescriptor>
      */
     public Collection $layers;
 
@@ -29,7 +32,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
      * @param MediaType $mediaType
      * @param int $schemaVersion
      * @param ImageConfigDescriptor $config
-     * @param Collection<ImageLayerDescriptor> $layers
+     * @param Collection<int, ImageLayerDescriptor> $layers
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, ImageConfigDescriptor $config, Collection $layers)
     {
@@ -46,7 +49,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
      * @param MediaType $mediaType
      * @param int $schemaVersion
      * @param ImageConfigDescriptor $config
-     * @param Collection<ImageLayerDescriptor> $layers
+     * @param Collection<int, ImageLayerDescriptor> $layers
      * @return self
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, ImageConfigDescriptor $config, Collection $layers): self
@@ -59,7 +62,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
      *
      * @param string $repository
      * @param string $digest
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return self
      */
     public static function parse(string $repository, string $digest, array $data): self
@@ -72,10 +75,17 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
             throw new \ParseError('Invalid image manifest data');
         }
 
-        $mediaType = MediaType::from($data['mediaType']);
-        $schemaVersion = (int)$data['schemaVersion'];
-        $config = ImageConfigDescriptor::parse($repository, $data['config']);
-        $layers = collect($data['layers'])->map(fn($l) => ImageLayerDescriptor::parse($repository, $l));
+        /** @var string $mediaTypeValue */
+        $mediaTypeValue = $data['mediaType'];
+        $mediaType = MediaType::from($mediaTypeValue);
+        /** @var int $schemaVersion */
+        $schemaVersion = $data['schemaVersion'];
+        /** @var array<string, mixed> $configData */
+        $configData = $data['config'];
+        $config = ImageConfigDescriptor::parse($repository, $configData);
+        /** @var array<int, array<string, mixed>> $layersData */
+        $layersData = $data['layers'];
+        $layers = collect($layersData)->map(fn(array $l) => ImageLayerDescriptor::parse($repository, $l));
 
         return new self($repository, $digest, $mediaType, $schemaVersion, $config, $layers);
     }

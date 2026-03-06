@@ -6,6 +6,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class Platform implements Arrayable, JsonSerializable
 {
     /**
@@ -26,7 +29,7 @@ readonly class Platform implements Arrayable, JsonSerializable
 
     /**
      * The features of this platform.
-     * @var Collection<string>
+     * @var Collection<int, string>
      */
     public Collection $features;
 
@@ -36,14 +39,14 @@ readonly class Platform implements Arrayable, JsonSerializable
      * @param string $os
      * @param string $architecture
      * @param string|null $variant
-     * @param ?Collection<string> $features
+     * @param Collection<int, string>|null $features
      */
     public function __construct(string $os, string $architecture, ?string $variant = null, ?Collection $features = null)
     {
         $this->os = $os;
         $this->architecture = $architecture;
         $this->variant = $variant;
-        $this->features = collect($features);
+        $this->features = $features ?? collect();
     }
 
     /**
@@ -52,7 +55,7 @@ readonly class Platform implements Arrayable, JsonSerializable
      * @param string $os
      * @param string $architecture
      * @param string|null $variant
-     * @param ?Collection<string> $features
+     * @param Collection<int, string>|null $features
      * @return self
      */
     public static function create(string $os, string $architecture, ?string $variant = null, ?Collection $features = null): self
@@ -63,15 +66,20 @@ readonly class Platform implements Arrayable, JsonSerializable
     /**
      * Parse a platform from an array.
      *
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return ?self
      */
     public static function parse(array $data): ?self
     {
-        $os = (string)($data['os']);
-        $architecture = (string)($data['architecture']);
-        $variant = isset($data['variant']) ? (string) $data['variant'] : null;
-        $features = collect($data['features'] ?? []);
+        /** @var string $os */
+        $os = $data['os'] ?? '';
+        /** @var string $architecture */
+        $architecture = $data['architecture'] ?? '';
+        /** @var string|null $variant */
+        $variant = $data['variant'] ?? null;
+        /** @var array<int, string> $featuresArray */
+        $featuresArray = $data['features'] ?? [];
+        $features = collect($featuresArray);
 
         if (empty($os) || empty($architecture)) {
             return null;
@@ -116,7 +124,7 @@ readonly class Platform implements Arrayable, JsonSerializable
         ]);
 
         if ($validCombinations->has($this->os)) {
-            return in_array($this->architecture, $validCombinations->get($this->os));
+            return in_array($this->architecture, $validCombinations->get($this->os) ?? []);
         } else {
             return false;
         }

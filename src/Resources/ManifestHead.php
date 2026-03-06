@@ -5,6 +5,9 @@ namespace Cainy\Dockhand\Resources;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ManifestHead implements Arrayable, JsonSerializable
 {
     /**

@@ -6,10 +6,15 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class PaginatedResult implements Arrayable, JsonSerializable
 {
     /**
      * The items in this page of results.
+     *
+     * @var Collection<int, string>
      */
     public Collection $items;
 
@@ -18,6 +23,9 @@ readonly class PaginatedResult implements Arrayable, JsonSerializable
      */
     public ?string $nextUrl;
 
+    /**
+     * @param Collection<int, string> $items
+     */
     public function __construct(Collection $items, ?string $nextUrl)
     {
         $this->items = $items;

@@ -7,6 +7,9 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ImageConfig implements Arrayable, JsonSerializable
 {
     /**
@@ -73,7 +76,7 @@ readonly class ImageConfig implements Arrayable, JsonSerializable
      * @param string $repository
      * @param string $digest
      * @param MediaType $mediaType
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return self
      */
     public static function parse(string $repository, string $digest, MediaType $mediaType, array $data): self
@@ -83,7 +86,14 @@ readonly class ImageConfig implements Arrayable, JsonSerializable
         }
 
         $platform = Platform::parse($data);
-        $created = Carbon::parse($data['created']);
+
+        if ($platform === null) {
+            throw new \ParseError('Invalid platform data in image config');
+        }
+
+        /** @var string $createdAt */
+        $createdAt = $data['created'];
+        $created = Carbon::parse($createdAt);
 
         return new self($repository, $digest, $mediaType, $platform, $created);
     }

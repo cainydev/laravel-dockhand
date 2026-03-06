@@ -6,6 +6,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class BlobUpload implements Arrayable, JsonSerializable
 {
     /**

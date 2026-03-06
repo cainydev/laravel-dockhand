@@ -6,6 +6,9 @@ use Cainy\Dockhand\Enums\MediaType;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 readonly class ImageConfigDescriptor implements Arrayable, JsonSerializable
 {
     /**
@@ -68,7 +71,7 @@ readonly class ImageConfigDescriptor implements Arrayable, JsonSerializable
      * Parse a ImageConfig instance from an array.
      *
      * @param string $repository
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return self
      */
     public static function parse(string $repository, array $data): self
@@ -77,9 +80,13 @@ readonly class ImageConfigDescriptor implements Arrayable, JsonSerializable
             throw new \ParseError('Invalid layer data');
         }
 
-        $digest = (string)($data['digest']);
-        $mediaType = MediaType::from($data['mediaType']);
-        $size = (int)($data['size']);
+        /** @var string $digest */
+        $digest = $data['digest'];
+        /** @var string $mediaTypeValue */
+        $mediaTypeValue = $data['mediaType'];
+        $mediaType = MediaType::from($mediaTypeValue);
+        /** @var int $size */
+        $size = $data['size'];
 
         return new self($repository, $digest, $mediaType, $size);
     }
