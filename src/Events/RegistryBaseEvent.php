@@ -23,7 +23,7 @@ abstract class RegistryBaseEvent
         get => $this->action;
     }
 
-    public string $targetDigest {
+    public ?string $targetDigest {
         get => $this->targetDigest;
     }
 
@@ -73,7 +73,7 @@ abstract class RegistryBaseEvent
         $this->timestamp = Carbon::parse($data['timestamp']);
         $this->action = EventAction::from($data['action']);
 
-        $this->targetDigest = $data['target']['digest'];
+        $this->targetDigest = $data['target']['digest'] ?? null;
         $this->targetRepository = $data['target']['repository'];
 
         $this->requestId = $data['request']['id'];
