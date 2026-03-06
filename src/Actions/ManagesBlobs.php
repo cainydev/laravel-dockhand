@@ -15,30 +15,31 @@ trait ManagesBlobs
     /**
      * Get a blob from the registry as a string.
      *
-     * @param string $repository The full repository name (e.g., "john/busybox").
-     * @param string $reference The tag or digest.
+     * @param  string  $repository  The full repository name (e.g., "john/busybox").
+     * @param  string  $reference  The tag or digest.
      * @return string|null The blobs content or null if not found.
+     *
      * @throws Exception If there's an issue with the request or response processing (other than 404).
      */
-    public function getBlob(string $repository, string $reference): string|null
+    public function getBlob(string $repository, string $reference): ?string
     {
         try {
             $response = $this->authenticatedRequest('read', $repository)
                 ->accept('*/*')
                 ->get("/{$repository}/blobs/{$reference}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}:{$reference}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             return null;
         }
 
-        if (!$response->successful()) {
-            $errorMessage = "Failed to fetch blob for {$repository}:{$reference}. Status: " . $response->status();
+        if (! $response->successful()) {
+            $errorMessage = "Failed to fetch blob for {$repository}:{$reference}. Status: ".$response->status();
             $responseBody = $response->body();
             if ($responseBody) {
-                $errorMessage .= " Body: " . $responseBody;
+                $errorMessage .= ' Body: '.$responseBody;
             }
             throw new Exception($errorMessage);
         }
@@ -63,61 +64,60 @@ trait ManagesBlobs
     /**
      * Get the size of a blob from the registry.
      *
-     * @param string $repository The full repository name (e.g., "john/busybox").
-     * @param string $reference The tag or digest.
+     * @param  string  $repository  The full repository name (e.g., "john/busybox").
+     * @param  string  $reference  The tag or digest.
      * @return int|null The size of the blob in bytes, or null if not found.
+     *
      * @throws Exception If there's an issue with the request or response processing (other than 404).
      */
-    public function getBlobSize(string $repository, string $reference): int|null
+    public function getBlobSize(string $repository, string $reference): ?int
     {
         try {
             $response = $this->authenticatedRequest('read', $repository)
                 ->head("/{$repository}/blobs/{$reference}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}:{$reference}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             return null;
         }
 
-        if (!$response->successful()) {
-            $errorMessage = "Failed to fetch blob size for {$repository}:{$reference}. Status: " . $response->status();
+        if (! $response->successful()) {
+            $errorMessage = "Failed to fetch blob size for {$repository}:{$reference}. Status: ".$response->status();
             $responseBody = $response->body();
             if ($responseBody) {
-                $errorMessage .= " Body: " . $responseBody;
+                $errorMessage .= ' Body: '.$responseBody;
             }
             throw new Exception($errorMessage);
         }
 
-        return (int)$response->header('Content-Length');
+        return (int) $response->header('Content-Length');
     }
 
     /**
      * Get the image config from the registry using a descriptor.
      *
-     * @param ImageConfigDescriptor $descriptor
-     * @return ImageConfig|null
      * @throws Exception
      */
-    public function getImageConfigFromDescriptor(ImageConfigDescriptor $descriptor): ImageConfig|null
+    public function getImageConfigFromDescriptor(ImageConfigDescriptor $descriptor): ?ImageConfig
     {
         try {
             $response = $this->authenticatedRequest('read', $descriptor->repository)
                 ->get("/{$descriptor->repository}/blobs/{$descriptor->digest}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$descriptor->repository}:{$descriptor->digest}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$descriptor->repository}:{$descriptor->digest}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             return null;
         }
 
-        if (!$response->successful()) {
-            $errorMessage = "Failed to fetch image config for {$descriptor->repository}:{$descriptor->digest}. Status: " . $response->status();
+        if (! $response->successful()) {
+            $errorMessage = "Failed to fetch image config for {$descriptor->repository}:{$descriptor->digest}. Status: ".$response->status();
             $responseBody = $response->body();
             if ($responseBody) {
-                $errorMessage .= " Body: " . $responseBody;
+                $errorMessage .= ' Body: '.$responseBody;
             }
             throw new Exception($errorMessage);
         }

@@ -18,32 +18,21 @@ readonly class ImageConfigDescriptor implements Arrayable, JsonSerializable
 
     /**
      * The digest of the content, as defined by the Registry V2 HTTP API Specification.
-     *
-     * @var string
      */
     public string $digest;
 
     /**
      * The MIME type of the referenced object.
-     *
-     * @var MediaType
      */
     public MediaType $mediaType;
 
     /**
      * The size in bytes of the object.
-     *
-     * @var int
      */
     public int $size;
 
     /**
      * Create a new ImageConfig instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $size
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $size)
     {
@@ -55,12 +44,6 @@ readonly class ImageConfigDescriptor implements Arrayable, JsonSerializable
 
     /**
      * Create a new ImageConfig instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $size
-     * @return self
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $size): self
     {
@@ -70,13 +53,11 @@ readonly class ImageConfigDescriptor implements Arrayable, JsonSerializable
     /**
      * Parse a ImageConfig instance from an array.
      *
-     * @param string $repository
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(string $repository, array $data): self
     {
-        if (!isset($data['mediaType'], $data['size'], $data['digest'])) {
+        if (! isset($data['mediaType'], $data['size'], $data['digest'])) {
             throw new \ParseError('Invalid layer data');
         }
 

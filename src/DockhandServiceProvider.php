@@ -6,6 +6,7 @@ use Cainy\Dockhand\Auth\JwtAuthenticator;
 use Cainy\Dockhand\Services\TokenService;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+
 use function config;
 
 class DockhandServiceProvider extends PackageServiceProvider

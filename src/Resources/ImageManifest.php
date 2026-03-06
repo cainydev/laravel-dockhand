@@ -27,12 +27,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
     /**
      * Create a new image manifest instance.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $schemaVersion
-     * @param ImageConfigDescriptor $config
-     * @param Collection<int, ImageLayerDescriptor> $layers
+     * @param  Collection<int, ImageLayerDescriptor>  $layers
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, ImageConfigDescriptor $config, Collection $layers)
     {
@@ -44,13 +39,7 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
     /**
      * Create a new image manifest instance.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $schemaVersion
-     * @param ImageConfigDescriptor $config
-     * @param Collection<int, ImageLayerDescriptor> $layers
-     * @return self
+     * @param  Collection<int, ImageLayerDescriptor>  $layers
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, ImageConfigDescriptor $config, Collection $layers): self
     {
@@ -60,14 +49,11 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
     /**
      * Parse an image manifest from an array.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(string $repository, string $digest, array $data): self
     {
-        if (!isset(
+        if (! isset(
             $data['mediaType'],
             $data['schemaVersion'],
             $data['config'],
@@ -85,15 +71,13 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
         $config = ImageConfigDescriptor::parse($repository, $configData);
         /** @var array<int, array<string, mixed>> $layersData */
         $layersData = $data['layers'];
-        $layers = collect($layersData)->map(fn(array $l) => ImageLayerDescriptor::parse($repository, $l));
+        $layers = collect($layersData)->map(fn (array $l) => ImageLayerDescriptor::parse($repository, $l));
 
         return new self($repository, $digest, $mediaType, $schemaVersion, $config, $layers);
     }
 
     /**
      * Return the size of the resource.
-     *
-     * @return int
      */
     public function getSize(): int
     {
@@ -102,8 +86,6 @@ readonly class ImageManifest extends ManifestResource implements Arrayable, Json
 
     /**
      * Check if this is a manifest list.
-     *
-     * @return bool
      */
     public function isManifestList(): bool
     {

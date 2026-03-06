@@ -19,8 +19,8 @@ interface ZotCapabilities
     /**
      * Execute a GraphQL search query against the Zot search extension.
      *
-     * @param string $query The GraphQL query string.
-     * @param array<string, mixed> $variables Variables to pass to the GraphQL query.
+     * @param  string  $query  The GraphQL query string.
+     * @param  array<string, mixed>  $variables  Variables to pass to the GraphQL query.
      * @return array<string, mixed>
      */
     public function search(string $query, array $variables = []): array;
@@ -28,8 +28,8 @@ interface ZotCapabilities
     /**
      * Search for CVEs affecting a specific image.
      *
-     * @param string $repository The repository name.
-     * @param string $reference The tag or digest.
+     * @param  string  $repository  The repository name.
+     * @param  string  $reference  The tag or digest.
      * @return array<string, mixed>
      */
     public function searchCVE(string $repository, string $reference): array;

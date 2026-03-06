@@ -1,9 +1,8 @@
 <?php
 
-use Cainy\Dockhand\Events\BlobPushedEvent;
-use Cainy\Dockhand\Events\ManifestPushedEvent;
-use Cainy\Dockhand\Events\EventAction;
 use Cainy\Dockhand\Enums\MediaType;
+use Cainy\Dockhand\Events\EventAction;
+use Cainy\Dockhand\Events\ManifestPushedEvent;
 
 function buildEventData(array $overrides = []): array
 {

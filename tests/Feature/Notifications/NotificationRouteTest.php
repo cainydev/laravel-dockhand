@@ -1,12 +1,11 @@
 <?php
 
+use Cainy\Dockhand\Events\BlobMountedEvent;
 use Cainy\Dockhand\Events\BlobPushedEvent;
+use Cainy\Dockhand\Events\ManifestDeletedEvent;
 use Cainy\Dockhand\Events\ManifestPulledEvent;
 use Cainy\Dockhand\Events\ManifestPushedEvent;
-use Cainy\Dockhand\Events\ManifestDeletedEvent;
-use Cainy\Dockhand\Events\BlobDeletedEvent;
 use Cainy\Dockhand\Events\TagDeletedEvent;
-use Cainy\Dockhand\Events\BlobMountedEvent;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function () {
@@ -29,7 +28,7 @@ beforeEach(function () {
 
     // The notifications route is loaded at boot time via package config.
     // We need to re-register it since we changed the config after boot.
-    $routePath = __DIR__ . '/../../../routes/notifications.php';
+    $routePath = __DIR__.'/../../../routes/notifications.php';
     if (file_exists($routePath)) {
         \Illuminate\Support\Facades\Route::middleware('api')->group($routePath);
     }
@@ -54,7 +53,7 @@ function generateNotifyToken(): string
 function sampleEventPayload(string $action = 'push', string $mediaType = 'application/vnd.docker.distribution.manifest.v2+json', array $overrides = []): array
 {
     return array_merge([
-        'id' => 'evt-' . uniqid(),
+        'id' => 'evt-'.uniqid(),
         'timestamp' => now()->toIso8601String(),
         'action' => $action,
         'target' => [

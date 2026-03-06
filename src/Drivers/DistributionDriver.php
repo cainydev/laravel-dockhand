@@ -9,7 +9,7 @@ class DistributionDriver extends AbstractRegistryDriver
         $url = "/{$repository}/referrers/{$digest}";
 
         if ($artifactType !== null) {
-            $url .= '?' . http_build_query(['artifactType' => $artifactType]);
+            $url .= '?'.http_build_query(['artifactType' => $artifactType]);
         }
 
         try {
@@ -19,7 +19,7 @@ class DistributionDriver extends AbstractRegistryDriver
             return [];
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return [];
         }
 

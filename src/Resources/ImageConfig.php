@@ -39,12 +39,6 @@ readonly class ImageConfig implements Arrayable, JsonSerializable
 
     /**
      * Create a new ImageConfig instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param Platform $platform
-     * @param Carbon $created
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, Platform $platform, Carbon $created)
     {
@@ -57,13 +51,6 @@ readonly class ImageConfig implements Arrayable, JsonSerializable
 
     /**
      * Create a new ImageConfig instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param Platform $platform
-     * @param Carbon $created
-     * @return self
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, Platform $platform, Carbon $created): self
     {
@@ -73,15 +60,11 @@ readonly class ImageConfig implements Arrayable, JsonSerializable
     /**
      * Parse an image config from an array.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(string $repository, string $digest, MediaType $mediaType, array $data): self
     {
-        if (!isset($data['os'], $data['architecture'], $data['created'])) {
+        if (! isset($data['os'], $data['architecture'], $data['created'])) {
             throw new \ParseError('Invalid image config data');
         }
 

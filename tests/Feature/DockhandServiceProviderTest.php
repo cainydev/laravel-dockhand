@@ -61,7 +61,7 @@ it('enables notifications route when configured', function () {
     config()->set('dockhand.notifications.enabled', true);
 
     // Re-register the package to pick up the route
-    $routePath = __DIR__ . '/../../routes/notifications.php';
+    $routePath = __DIR__.'/../../routes/notifications.php';
     if (file_exists($routePath)) {
         \Illuminate\Support\Facades\Route::middleware('api')->group($routePath);
     }

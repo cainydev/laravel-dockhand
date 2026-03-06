@@ -2,6 +2,4 @@
 
 namespace Cainy\Dockhand\Events;
 
-class BlobPulledEvent extends RegistryEvent
-{
-}
+class BlobPulledEvent extends RegistryEvent {}

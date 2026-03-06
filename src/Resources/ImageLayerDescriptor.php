@@ -18,22 +18,16 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
 
     /**
      * The digest of the content, as defined by the Registry V2 HTTP API Specification.
-     *
-     * @var string
      */
     public string $digest;
 
     /**
      * The MIME type of the referenced object.
-     *
-     * @var MediaType
      */
     public MediaType $mediaType;
 
     /**
      * The size in bytes of the object.
-     *
-     * @var int
      */
     public int $size;
 
@@ -48,11 +42,7 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
     /**
      * Create a new Layer instance.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $size
-     * @param array<string> $urls
+     * @param  array<string>  $urls
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $size, array $urls = [])
     {
@@ -66,12 +56,7 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
     /**
      * Create a new Layer instance.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $size
-     * @param array<string> $urls
-     * @return self
+     * @param  array<string>  $urls
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $size, array $urls = []): self
     {
@@ -81,13 +66,11 @@ readonly class ImageLayerDescriptor implements Arrayable, JsonSerializable
     /**
      * Parse a Layer instance from an array.
      *
-     * @param string $repository
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(string $repository, array $data): self
     {
-        if (!isset($data['mediaType'], $data['size'], $data['digest'])) {
+        if (! isset($data['mediaType'], $data['size'], $data['digest'])) {
             throw new \ParseError('Invalid layer data');
         }
 

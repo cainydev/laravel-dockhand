@@ -23,12 +23,12 @@ readonly class Platform implements Arrayable, JsonSerializable
 
     /**
      * The variant of this platform.
-     * @var string|null
      */
     public ?string $variant;
 
     /**
      * The features of this platform.
+     *
      * @var Collection<int, string>
      */
     public Collection $features;
@@ -36,10 +36,7 @@ readonly class Platform implements Arrayable, JsonSerializable
     /**
      * Create a new Platform instance.
      *
-     * @param string $os
-     * @param string $architecture
-     * @param string|null $variant
-     * @param Collection<int, string>|null $features
+     * @param  Collection<int, string>|null  $features
      */
     public function __construct(string $os, string $architecture, ?string $variant = null, ?Collection $features = null)
     {
@@ -52,11 +49,7 @@ readonly class Platform implements Arrayable, JsonSerializable
     /**
      * Create a new Platform instance.
      *
-     * @param string $os
-     * @param string $architecture
-     * @param string|null $variant
-     * @param Collection<int, string>|null $features
-     * @return self
+     * @param  Collection<int, string>|null  $features
      */
     public static function create(string $os, string $architecture, ?string $variant = null, ?Collection $features = null): self
     {
@@ -66,8 +59,7 @@ readonly class Platform implements Arrayable, JsonSerializable
     /**
      * Parse a platform from an array.
      *
-     * @param array<string, mixed> $data
-     * @return ?self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(array $data): ?self
     {
@@ -93,17 +85,17 @@ readonly class Platform implements Arrayable, JsonSerializable
      */
     public function toString(): string
     {
-        return $this->os . '/' . $this->architecture . (!empty($this->variant) ? '/' . $this->variant : '');
+        return $this->os.'/'.$this->architecture.(! empty($this->variant) ? '/'.$this->variant : '');
     }
 
     /**
      * Check if the platform is valid. Source https://go.dev/doc/install/source#environment.
-     *
-     * @return bool
      */
     public function isValid(): bool
     {
-        if (empty($this->os) || empty($this->architecture)) return false;
+        if (empty($this->os) || empty($this->architecture)) {
+            return false;
+        }
 
         $validCombinations = collect([
             'aix' => ['ppc64'],
@@ -151,7 +143,7 @@ readonly class Platform implements Arrayable, JsonSerializable
             'os' => $this->os,
             'architecture' => $this->architecture,
             'variant' => $this->variant,
-            'features' => $this->features->toArray()
+            'features' => $this->features->toArray(),
         ];
     }
 }

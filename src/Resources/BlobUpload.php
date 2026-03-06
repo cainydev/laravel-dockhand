@@ -42,9 +42,8 @@ readonly class BlobUpload implements Arrayable, JsonSerializable
     /**
      * Create a BlobUpload from a registry response.
      *
-     * @param string $repository The repository name.
-     * @param Response $response The HTTP response from the registry.
-     * @return self
+     * @param  string  $repository  The repository name.
+     * @param  Response  $response  The HTTP response from the registry.
      */
     public static function fromResponse(string $repository, Response $response): self
     {

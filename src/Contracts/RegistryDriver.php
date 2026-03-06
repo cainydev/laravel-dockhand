@@ -43,11 +43,11 @@ interface RegistryDriver
     public function deleteManifest(string $repository, string $reference): bool;
 
     // Blobs
-    public function getBlob(string $repository, string $reference): string|null;
+    public function getBlob(string $repository, string $reference): ?string;
 
-    public function getBlobSize(string $repository, string $reference): int|null;
+    public function getBlobSize(string $repository, string $reference): ?int;
 
-    public function getImageConfigFromDescriptor(ImageConfigDescriptor $descriptor): ImageConfig|null;
+    public function getImageConfigFromDescriptor(ImageConfigDescriptor $descriptor): ?ImageConfig;
 
     public function deleteBlob(string $repository, string $digest): bool;
 

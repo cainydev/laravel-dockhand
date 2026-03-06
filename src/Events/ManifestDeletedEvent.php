@@ -2,6 +2,4 @@
 
 namespace Cainy\Dockhand\Events;
 
-class ManifestDeletedEvent extends RegistryBaseEvent
-{
-}
+class ManifestDeletedEvent extends RegistryBaseEvent {}

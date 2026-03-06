@@ -24,7 +24,7 @@ readonly class PaginatedResult implements Arrayable, JsonSerializable
     public ?string $nextUrl;
 
     /**
-     * @param Collection<int, string> $items
+     * @param  Collection<int, string>  $items
      */
     public function __construct(Collection $items, ?string $nextUrl)
     {

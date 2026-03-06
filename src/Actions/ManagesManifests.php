@@ -13,8 +13,8 @@ use Cainy\Dockhand\Resources\ManifestListEntry;
 use Cainy\Dockhand\Resources\ManifestResource;
 use Cainy\Dockhand\Resources\PushResult;
 use Exception;
-use InvalidArgumentException;
 use Illuminate\Http\Client\ConnectionException;
+use InvalidArgumentException;
 
 /**
  * @phpstan-require-extends \Cainy\Dockhand\Drivers\AbstractRegistryDriver
@@ -24,9 +24,10 @@ trait ManagesManifests
     /**
      * Check if a manifest exists and get its metadata via HEAD request.
      *
-     * @param string $repository The full repository name (e.g., "john/busybox").
-     * @param string $reference The tag or digest.
+     * @param  string  $repository  The full repository name (e.g., "john/busybox").
+     * @param  string  $reference  The tag or digest.
      * @return ManifestHead|null The manifest head info, or null if not found.
+     *
      * @throws Exception If there's an issue with the request or response processing (other than 404).
      */
     public function headManifest(string $repository, string $reference): ?ManifestHead
@@ -41,15 +42,15 @@ trait ManagesManifests
                 ->accept(MediaType::getManifestTypesAsString())
                 ->head("/{$repository}/manifests/{$reference}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}:{$reference}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             return null;
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to HEAD manifest for {$repository}:{$reference}. Status: " . $response->status());
+        if (! $response->successful()) {
+            throw new Exception("Failed to HEAD manifest for {$repository}:{$reference}. Status: ".$response->status());
         }
 
         return new ManifestHead(
@@ -62,11 +63,11 @@ trait ManagesManifests
     /**
      * Push a manifest to the registry.
      *
-     * @param string $repository The full repository name (e.g., "john/busybox").
-     * @param string $reference The tag or digest.
-     * @param ManifestResource|string $manifest The manifest to push (resource or raw JSON string).
-     * @param MediaType|null $mediaType Required when $manifest is a string.
-     * @return PushResult
+     * @param  string  $repository  The full repository name (e.g., "john/busybox").
+     * @param  string  $reference  The tag or digest.
+     * @param  ManifestResource|string  $manifest  The manifest to push (resource or raw JSON string).
+     * @param  MediaType|null  $mediaType  Required when $manifest is a string.
+     *
      * @throws InvalidArgumentException If $manifest is a string and $mediaType is null.
      * @throws ManifestBlobUnknownException If a referenced blob is unknown.
      * @throws ManifestInvalidException If the manifest is invalid.
@@ -97,7 +98,7 @@ trait ManagesManifests
                 ->withBody($body, $mediaType->toString())
                 ->put("/{$repository}/manifests/{$reference}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}:{$reference}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->status() === 201) {
@@ -115,18 +116,18 @@ trait ManagesManifests
             $code = $errors[0]['code'] ?? '';
 
             if ($code === 'BLOB_UNKNOWN') {
-                throw new ManifestBlobUnknownException("Referenced blob unknown for {$repository}:{$reference}: " . $response->body());
+                throw new ManifestBlobUnknownException("Referenced blob unknown for {$repository}:{$reference}: ".$response->body());
             }
 
-            throw new ManifestInvalidException("Manifest invalid for {$repository}:{$reference}: " . $response->body());
+            throw new ManifestInvalidException("Manifest invalid for {$repository}:{$reference}: ".$response->body());
         }
 
         if ($response->status() === 405) {
             throw new UnsupportedException("Manifest PUT not supported for {$repository}:{$reference}.");
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to push manifest for {$repository}:{$reference}. Status: " . $response->status() . " Body: " . $response->body());
+        if (! $response->successful()) {
+            throw new Exception("Failed to push manifest for {$repository}:{$reference}. Status: ".$response->status().' Body: '.$response->body());
         }
 
         // Some registries return 200 instead of 201
@@ -139,7 +140,7 @@ trait ManagesManifests
     /**
      * Build the wire-format manifest body by stripping non-wire fields.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     private function buildManifestBody(array $data): array
@@ -159,8 +160,9 @@ trait ManagesManifests
     /**
      * Get a manifest from a manifest list entry.
      *
-     * @param ManifestListEntry $entry The manifest list entry to get the manifest from.
+     * @param  ManifestListEntry  $entry  The manifest list entry to get the manifest from.
      * @return ImageManifest|ManifestList|null The manifest resource, or null if not found.
+     *
      * @throws Exception If there's an issue with the request or response processing (other than 404).
      */
     public function getManifestFromManifestListEntry(ManifestListEntry $entry): ImageManifest|ManifestList|null
@@ -171,14 +173,15 @@ trait ManagesManifests
     /**
      * Get a manifest from the registry.
      *
-     * @param string $repository The full repository name (e.g., "john/busybox").
-     * @param string $reference The tag or digest.
+     * @param  string  $repository  The full repository name (e.g., "john/busybox").
+     * @param  string  $reference  The tag or digest.
      * @return ImageManifest|ManifestList|null The manifest resource, or null if not found.
+     *
      * @throws Exception If there's an issue with the request or response processing (other than 404).
      */
     public function getManifest(string $repository, string $reference): ImageManifest|ManifestList|null
     {
-        $this->logger()->debug("[ManagesManifests] Getting manifest", [
+        $this->logger()->debug('[ManagesManifests] Getting manifest', [
             'repository' => $repository,
             'reference' => $reference,
         ]);
@@ -188,18 +191,18 @@ trait ManagesManifests
                 ->accept(MediaType::getManifestTypesAsString())
                 ->get("/{$repository}/manifests/{$reference}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}:{$reference}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             return null;
         }
 
-        if (!$response->successful()) {
-            $errorMessage = "Failed to fetch manifest for {$repository}:{$reference}. Status: " . $response->status();
+        if (! $response->successful()) {
+            $errorMessage = "Failed to fetch manifest for {$repository}:{$reference}. Status: ".$response->status();
             $responseBody = $response->body();
             if ($responseBody) {
-                $errorMessage .= " Body: " . $responseBody;
+                $errorMessage .= ' Body: '.$responseBody;
             }
             throw new Exception($errorMessage);
         }
@@ -207,11 +210,11 @@ trait ManagesManifests
         /** @var array<string, mixed>|null $manifestData */
         $manifestData = $response->json();
         if ($manifestData === null && json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception("Failed to decode manifest JSON for {$repository}:{$reference}. Response Body: " . $response->body());
+            throw new Exception("Failed to decode manifest JSON for {$repository}:{$reference}. Response Body: ".$response->body());
         }
 
         /** @var array<string, mixed> $manifestData */
-        $this->logger()->debug("[ManagesManifests] Parsed manifest data from json", $manifestData);
+        $this->logger()->debug('[ManagesManifests] Parsed manifest data from json', $manifestData);
 
         $digestHeader = $this->contentDigestHeader();
         $digest = $response->header($digestHeader);
@@ -222,7 +225,7 @@ trait ManagesManifests
             if ($digest) {
                 $digest = trim($digest, '"W/');
 
-                $this->logger()->debug("[ManagesManifests] Got it instead from ETag header", [
+                $this->logger()->debug('[ManagesManifests] Got it instead from ETag header', [
                     'header' => $response->header('ETag'),
                     'parsed' => $digest,
                 ]);
@@ -242,10 +245,12 @@ trait ManagesManifests
         $mediaType = MediaType::from($mediaTypeValue);
 
         if ($mediaType->isManifestList()) {
-            $this->logger()->debug("[ManagesManifests] Trying to parse ManifestList from data", $manifestData);
+            $this->logger()->debug('[ManagesManifests] Trying to parse ManifestList from data', $manifestData);
+
             return ManifestList::parse($repository, $digest, $manifestData);
         } elseif ($mediaType->isImageManifest()) {
-            $this->logger()->debug("[ManagesManifests] Trying to parse ImageManifest from data", $manifestData);
+            $this->logger()->debug('[ManagesManifests] Trying to parse ImageManifest from data', $manifestData);
+
             return ImageManifest::parse($repository, $digest, $manifestData);
         } else {
             throw new Exception("Unsupported media type '{$mediaType->toString()}' for manifest {$repository}:{$reference}.");
