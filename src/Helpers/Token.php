@@ -23,7 +23,7 @@ class Token
     /**
      * Create a new TokenBuilder instance.
      *
-     * @param ?Builder $builder Optional custom builder instance.
+     * @param  ?Builder  $builder  Optional custom builder instance.
      */
     final public function __construct(?Builder $builder = null)
     {
@@ -33,8 +33,6 @@ class Token
 
     /**
      * Create a new Token instance.
-     *
-     * @return static
      */
     public static function create(): static
     {
@@ -44,7 +42,6 @@ class Token
     /**
      * Generate and return the signed JWT token as string.
      *
-     * @return string
      * @see toString()
      */
     public function __toString(): string
@@ -54,8 +51,6 @@ class Token
 
     /**
      * Generate and return the signed JWT token as string.
-     *
-     * @return string
      */
     public function toString(): string
     {
@@ -64,8 +59,6 @@ class Token
 
     /**
      * Generate and return the signed JWT token.
-     *
-     * @return UnencryptedToken
      */
     public function sign(): UnencryptedToken
     {
@@ -77,9 +70,7 @@ class Token
     /**
      * Add a custom claim.
      *
-     * @param non-empty-string $name
-     * @param mixed $value
-     * @return static
+     * @param  non-empty-string  $name
      */
     public function withClaim(string $name, mixed $value): static
     {
@@ -95,8 +86,7 @@ class Token
     /**
      * Set the subject (sub) claim.
      *
-     * @param non-empty-string $subject
-     * @return static
+     * @param  non-empty-string  $subject
      */
     public function relatedTo(string $subject): static
     {
@@ -108,8 +98,7 @@ class Token
     /**
      * Set the issuer (iss) claim.
      *
-     * @param non-empty-string $issuer
-     * @return static
+     * @param  non-empty-string  $issuer
      */
     public function issuedBy(string $issuer): static
     {
@@ -121,8 +110,7 @@ class Token
     /**
      * Set the audience (aud) claim.
      *
-     * @param non-empty-string $audience
-     * @return static
+     * @param  non-empty-string  $audience
      */
     public function permittedFor(string $audience): static
     {
@@ -133,9 +121,6 @@ class Token
 
     /**
      * Set the expiration time (exp) claim.
-     *
-     * @param Carbon $time
-     * @return static
      */
     public function expiresAt(Carbon $time): static
     {
@@ -148,9 +133,6 @@ class Token
 
     /**
      * Set the "not before" (nbf) claim.
-     *
-     * @param Carbon $time
-     * @return static
      */
     public function canOnlyBeUsedAfter(Carbon $time): static
     {
@@ -163,33 +145,29 @@ class Token
 
     /**
      * Add a registry scope to the token.
-     *
-     * @param Scope $scope
-     * @return static
      */
     public function withScope(Scope $scope): static
     {
         $this->access[] = $scope->toArray();
+
         return $this;
     }
 
     /**
      * Add a custom header.
      *
-     * @param non-empty-string $name
-     * @param mixed $value
-     * @return static
+     * @param  non-empty-string  $name
      */
     public function withHeader(string $name, mixed $value): static
     {
         $this->builder = $this->builder->withHeader($name, $value);
+
         return $this;
     }
 
     /**
      * Generate and return the signed JWT token.
      *
-     * @return UnencryptedToken
      * @see sign()
      */
     public function get(): UnencryptedToken

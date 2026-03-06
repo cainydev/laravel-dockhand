@@ -62,7 +62,7 @@ enum MediaType: string
             self::IMAGE_MANIFEST_V1_SIGNED->toString(),
             self::IMAGE_MANIFEST_V2->toString(),
             self::IMAGE_MANIFEST_V2_LIST->toString(),
-            self::OCI_IMAGE_MANIFEST_V1->toString()
+            self::OCI_IMAGE_MANIFEST_V1->toString(),
         ]);
     }
 

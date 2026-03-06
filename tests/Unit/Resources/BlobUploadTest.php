@@ -1,8 +1,8 @@
 <?php
 
 use Cainy\Dockhand\Resources\BlobUpload;
-use Illuminate\Http\Client\Response;
 use GuzzleHttp\Psr7\Response as Psr7Response;
+use Illuminate\Http\Client\Response;
 
 it('constructs correctly', function () {
     $upload = new BlobUpload('my/repo', 'uuid-123', '/v2/my/repo/blobs/uploads/uuid-123', 0);

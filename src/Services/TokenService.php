@@ -19,6 +19,7 @@ use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 use Ramsey\Uuid\Uuid;
+
 use function now;
 
 class TokenService
@@ -47,8 +48,8 @@ class TokenService
     protected string $kid;
 
     /**
-     * @param non-empty-string $privateKeyPath
-     * @param non-empty-string $publicKeyPath
+     * @param  non-empty-string  $privateKeyPath
+     * @param  non-empty-string  $publicKeyPath
      */
     public function __construct(string $privateKeyPath, string $publicKeyPath)
     {
@@ -140,7 +141,7 @@ class TokenService
      * Validate a token that was issued by this service.
      */
     /**
-     * @param non-empty-string $token
+     * @param  non-empty-string  $token
      */
     public function validateToken(string $token, Closure $closure): bool
     {

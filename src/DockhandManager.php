@@ -39,7 +39,7 @@ class DockhandManager
     {
         $name = $name ?: $this->getDefaultDriver();
 
-        if (!isset($this->connections[$name])) {
+        if (! isset($this->connections[$name])) {
             $this->connections[$name] = $this->resolve($name);
         }
 
@@ -55,7 +55,7 @@ class DockhandManager
     {
         $connection = $this->connection($name);
 
-        if (!$connection instanceof ZotDriver) {
+        if (! $connection instanceof ZotDriver) {
             $name = $name ?: $this->getDefaultDriver();
             throw new InvalidArgumentException("Connection \"{$name}\" is not a Zot driver.");
         }
@@ -72,7 +72,7 @@ class DockhandManager
     {
         $connection = $this->connection($name);
 
-        if (!$connection instanceof DistributionDriver) {
+        if (! $connection instanceof DistributionDriver) {
             $name = $name ?: $this->getDefaultDriver();
             throw new InvalidArgumentException("Connection \"{$name}\" is not a Distribution driver.");
         }
@@ -116,7 +116,7 @@ class DockhandManager
     /**
      * Resolve an authenticator from config.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     protected function resolveAuthenticator(array $config): Authenticator
     {
@@ -154,7 +154,7 @@ class DockhandManager
     /**
      * Resolve a logger from config.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     protected function resolveLogger(array $config): LoggerInterface
     {
@@ -180,7 +180,7 @@ class DockhandManager
     /**
      * Forward calls to the default connection.
      *
-     * @param array<int, mixed> $parameters
+     * @param  array<int, mixed>  $parameters
      */
     public function __call(string $method, array $parameters): mixed
     {

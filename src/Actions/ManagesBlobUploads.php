@@ -20,8 +20,9 @@ trait ManagesBlobUploads
     /**
      * Initiate a blob upload.
      *
-     * @param string $repository The full repository name.
+     * @param  string  $repository  The full repository name.
      * @return BlobUpload The upload state for subsequent requests.
+     *
      * @throws Exception
      */
     public function initiateBlobUpload(string $repository): BlobUpload
@@ -35,11 +36,11 @@ trait ManagesBlobUploads
                 ->withBody('', 'application/octet-stream')
                 ->post("/{$repository}/blobs/uploads/");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}: ".$e->getMessage(), 0, $e);
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to initiate blob upload for {$repository}. Status: " . $response->status() . " Body: " . $response->body());
+        if (! $response->successful()) {
+            throw new Exception("Failed to initiate blob upload for {$repository}. Status: ".$response->status().' Body: '.$response->body());
         }
 
         return BlobUpload::fromResponse($repository, $response);
@@ -48,10 +49,11 @@ trait ManagesBlobUploads
     /**
      * Mount a blob from another repository.
      *
-     * @param string $repository The target repository.
-     * @param string $digest The blob digest to mount.
-     * @param string $fromRepository The source repository.
+     * @param  string  $repository  The target repository.
+     * @param  string  $digest  The blob digest to mount.
+     * @param  string  $fromRepository  The source repository.
      * @return BlobUpload|PushResult PushResult if mount succeeded, BlobUpload if fallback to upload.
+     *
      * @throws Exception
      */
     public function mountBlob(string $repository, string $digest, string $fromRepository): BlobUpload|PushResult
@@ -67,7 +69,7 @@ trait ManagesBlobUploads
                 ->withBody('', 'application/octet-stream')
                 ->post("/{$repository}/blobs/uploads/?mount={$digest}&from={$fromRepository}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->status() === 201) {
@@ -81,15 +83,16 @@ trait ManagesBlobUploads
             return BlobUpload::fromResponse($repository, $response);
         }
 
-        throw new Exception("Failed to mount blob for {$repository}. Status: " . $response->status() . " Body: " . $response->body());
+        throw new Exception("Failed to mount blob for {$repository}. Status: ".$response->status().' Body: '.$response->body());
     }
 
     /**
      * Upload a chunk of blob data.
      *
-     * @param BlobUpload $upload The current upload state.
-     * @param string $data The chunk data to upload.
+     * @param  BlobUpload  $upload  The current upload state.
+     * @param  string  $data  The chunk data to upload.
      * @return BlobUpload The updated upload state.
+     *
      * @throws RangeInvalidException
      * @throws BlobUploadUnknownException
      * @throws Exception
@@ -115,19 +118,19 @@ trait ManagesBlobUploads
                 ->withBody($data, 'application/octet-stream')
                 ->patch($path);
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed: " . $e->getMessage(), 0, $e);
+            throw new Exception('Connection to registry failed: '.$e->getMessage(), 0, $e);
         }
 
         if ($response->status() === 416) {
-            throw new RangeInvalidException("Invalid range for blob upload chunk. Status: " . $response->status() . " Body: " . $response->body());
+            throw new RangeInvalidException('Invalid range for blob upload chunk. Status: '.$response->status().' Body: '.$response->body());
         }
 
         if ($response->notFound()) {
             throw new BlobUploadUnknownException("Blob upload not found for {$upload->repository} (UUID: {$upload->uuid}).");
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to upload blob chunk for {$upload->repository}. Status: " . $response->status() . " Body: " . $response->body());
+        if (! $response->successful()) {
+            throw new Exception("Failed to upload blob chunk for {$upload->repository}. Status: ".$response->status().' Body: '.$response->body());
         }
 
         return BlobUpload::fromResponse($upload->repository, $response);
@@ -136,10 +139,10 @@ trait ManagesBlobUploads
     /**
      * Complete a blob upload.
      *
-     * @param BlobUpload $upload The current upload state.
-     * @param string $digest The expected digest of the complete blob.
-     * @param string|null $data Optional final chunk of data.
-     * @return PushResult
+     * @param  BlobUpload  $upload  The current upload state.
+     * @param  string  $digest  The expected digest of the complete blob.
+     * @param  string|null  $data  Optional final chunk of data.
+     *
      * @throws DigestInvalidException
      * @throws BlobUploadInvalidException
      * @throws Exception
@@ -167,7 +170,7 @@ trait ManagesBlobUploads
 
             $response = $request->put($path);
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed: " . $e->getMessage(), 0, $e);
+            throw new Exception('Connection to registry failed: '.$e->getMessage(), 0, $e);
         }
 
         if ($response->status() === 201) {
@@ -185,21 +188,21 @@ trait ManagesBlobUploads
             $code = $errors[0]['code'] ?? '';
 
             if ($code === 'DIGEST_INVALID') {
-                throw new DigestInvalidException("Digest invalid for blob upload completion: " . $response->body());
+                throw new DigestInvalidException('Digest invalid for blob upload completion: '.$response->body());
             }
 
-            throw new BlobUploadInvalidException("Blob upload invalid for {$upload->repository}: " . $response->body());
+            throw new BlobUploadInvalidException("Blob upload invalid for {$upload->repository}: ".$response->body());
         }
 
-        throw new Exception("Failed to complete blob upload for {$upload->repository}. Status: " . $response->status() . " Body: " . $response->body());
+        throw new Exception("Failed to complete blob upload for {$upload->repository}. Status: ".$response->status().' Body: '.$response->body());
     }
 
     /**
      * Get the status of a blob upload.
      *
-     * @param string $repository The full repository name.
-     * @param string $uuid The upload UUID.
-     * @return BlobUpload
+     * @param  string  $repository  The full repository name.
+     * @param  string  $uuid  The upload UUID.
+     *
      * @throws BlobUploadUnknownException
      * @throws Exception
      */
@@ -214,15 +217,15 @@ trait ManagesBlobUploads
             $response = $this->authenticatedRequest('write', $repository)
                 ->get("/{$repository}/blobs/uploads/{$uuid}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             throw new BlobUploadUnknownException("Blob upload not found for {$repository} (UUID: {$uuid}).");
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to get blob upload status for {$repository}. Status: " . $response->status() . " Body: " . $response->body());
+        if (! $response->successful()) {
+            throw new Exception("Failed to get blob upload status for {$repository}. Status: ".$response->status().' Body: '.$response->body());
         }
 
         return BlobUpload::fromResponse($repository, $response);
@@ -231,9 +234,10 @@ trait ManagesBlobUploads
     /**
      * Cancel a blob upload.
      *
-     * @param string $repository The full repository name.
-     * @param string $uuid The upload UUID.
+     * @param  string  $repository  The full repository name.
+     * @param  string  $uuid  The upload UUID.
      * @return bool True if cancelled, false if not found.
+     *
      * @throws Exception
      */
     public function cancelBlobUpload(string $repository, string $uuid): bool
@@ -247,15 +251,15 @@ trait ManagesBlobUploads
             $response = $this->authenticatedRequest('write', $repository)
                 ->delete("/{$repository}/blobs/uploads/{$uuid}");
         } catch (ConnectionException $e) {
-            throw new Exception("Connection to registry failed for {$repository}: " . $e->getMessage(), 0, $e);
+            throw new Exception("Connection to registry failed for {$repository}: ".$e->getMessage(), 0, $e);
         }
 
         if ($response->notFound()) {
             return false;
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to cancel blob upload for {$repository}. Status: " . $response->status() . " Body: " . $response->body());
+        if (! $response->successful()) {
+            throw new Exception("Failed to cancel blob upload for {$repository}. Status: ".$response->status().' Body: '.$response->body());
         }
 
         return true;
@@ -266,10 +270,10 @@ trait ManagesBlobUploads
      *
      * Convenience method that initiates an upload and immediately completes it.
      *
-     * @param string $repository The full repository name.
-     * @param string $data The blob data.
-     * @param string $digest The expected digest of the blob.
-     * @return PushResult
+     * @param  string  $repository  The full repository name.
+     * @param  string  $data  The blob data.
+     * @param  string  $digest  The expected digest of the blob.
+     *
      * @throws Exception
      */
     public function uploadBlob(string $repository, string $data, string $digest): PushResult
@@ -292,7 +296,6 @@ trait ManagesBlobUploads
      * This helper strips the base URL prefix if present to produce a relative
      * path for use with $this->request().
      *
-     * @param BlobUpload $upload
      * @return array{PendingRequest, string} [$request, $path]
      */
     private function resolveUploadLocation(BlobUpload $upload): array
@@ -303,6 +306,7 @@ trait ManagesBlobUploads
         if (str_starts_with($location, 'http://') || str_starts_with($location, 'https://')) {
             if (str_starts_with($location, $this->baseUrl)) {
                 $path = substr($location, strlen($this->baseUrl));
+
                 return [$request, $path];
             }
 

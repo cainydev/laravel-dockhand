@@ -58,6 +58,7 @@ abstract class RegistryBaseEvent
     public string $sourceAddr {
         get => $this->sourceAddr;
     }
+
     public string $sourceInstanceId {
         get => $this->sourceInstanceId;
     }
@@ -65,7 +66,7 @@ abstract class RegistryBaseEvent
     /**
      * Base constructor for all registry events.
      *
-     * @param array{id: string, timestamp: string, action: string, target: array{digest?: string, repository: string}, request: array{id: string, addr: string, host: string, method: string, useragent: string}, actor?: array{name: string}, source: array{addr: string, instanceID: string}} $data Raw notification data from the registry webhook.
+     * @param  array{id: string, timestamp: string, action: string, target: array{digest?: string, repository: string}, request: array{id: string, addr: string, host: string, method: string, useragent: string}, actor?: array{name: string}, source: array{addr: string, instanceID: string}}  $data  Raw notification data from the registry webhook.
      */
     public function __construct(array $data)
     {
@@ -84,7 +85,7 @@ abstract class RegistryBaseEvent
         $this->requestMethod = $request['method'];
         $this->requestUserAgent = $request['useragent'];
 
-        if (!empty($data['actor'])) {
+        if (! empty($data['actor'])) {
             $this->actorName = $data['actor']['name'];
         } else {
             $this->actorName = null;

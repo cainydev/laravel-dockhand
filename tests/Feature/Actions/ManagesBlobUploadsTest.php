@@ -207,6 +207,7 @@ it('uploads a blob monolithically', function () {
                 'Range' => '0-0',
             ]);
         }
+
         // completeBlobUpload - PUT
         return Http::response('', 201, [
             'Location' => '/v2/repo/blobs/sha256:mono',
@@ -230,6 +231,7 @@ it('handles absolute Location urls from uploads', function () {
                 'Range' => '0-0',
             ]);
         }
+
         return Http::response('', 201, [
             'Location' => '/v2/repo/blobs/sha256:abs',
             'Docker-Content-Digest' => 'sha256:abs',

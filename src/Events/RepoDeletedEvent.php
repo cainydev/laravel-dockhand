@@ -2,6 +2,4 @@
 
 namespace Cainy\Dockhand\Events;
 
-class RepoDeletedEvent extends RegistryBaseEvent
-{
-}
+class RepoDeletedEvent extends RegistryBaseEvent {}

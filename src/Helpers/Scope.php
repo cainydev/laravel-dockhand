@@ -5,6 +5,7 @@ namespace Cainy\Dockhand\Helpers;
 use Cainy\Dockhand\Enums\ScopeResourceType;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
+
 use function implode;
 use function in_array;
 
@@ -66,10 +67,18 @@ class Scope implements Arrayable, JsonSerializable
 
         set {
             $this->allowNone();
-            if (in_array('pull', $value)) $this->allowPull();
-            if (in_array('push', $value)) $this->allowPush();
-            if (in_array('delete', $value)) $this->allowDelete();
-            if (in_array('*', $value)) $this->allowAll();
+            if (in_array('pull', $value)) {
+                $this->allowPull();
+            }
+            if (in_array('push', $value)) {
+                $this->allowPush();
+            }
+            if (in_array('delete', $value)) {
+                $this->allowDelete();
+            }
+            if (in_array('*', $value)) {
+                $this->allowAll();
+            }
         }
     }
 
@@ -85,9 +94,6 @@ class Scope implements Arrayable, JsonSerializable
 
     /**
      * Create a new scope instance by parsing a scope string.
-     *
-     * @param string $scope
-     * @return static
      */
     public static function fromString(string $scope): static
     {
@@ -95,7 +101,7 @@ class Scope implements Arrayable, JsonSerializable
             throw new \InvalidArgumentException('Scope cannot be empty');
         }
 
-        if (!preg_match('/^([a-z0-9]+(?:\([a-z0-9]+\))?):([^:]+):([a-z,*]+)$/', $scope, $matches)) {
+        if (! preg_match('/^([a-z0-9]+(?:\([a-z0-9]+\))?):([^:]+):([a-z,*]+)$/', $scope, $matches)) {
             throw new \InvalidArgumentException("Invalid scope format: $scope");
         }
 
@@ -109,7 +115,7 @@ class Scope implements Arrayable, JsonSerializable
 
         $actions = explode(',', $actionString);
 
-        $instance = new static();
+        $instance = new static;
 
         $instance->type = $type;
         $instance->name = $resourceName;
@@ -139,6 +145,7 @@ class Scope implements Arrayable, JsonSerializable
     public function allowPull(?bool $enabled = true): static
     {
         $this->allowPull = $enabled ?? false;
+
         return $this;
     }
 
@@ -148,6 +155,7 @@ class Scope implements Arrayable, JsonSerializable
     public function allowPush(bool $enabled = true): static
     {
         $this->allowPush = $enabled;
+
         return $this;
     }
 
@@ -157,6 +165,7 @@ class Scope implements Arrayable, JsonSerializable
     public function allowDelete(bool $enabled = true): static
     {
         $this->allowDelete = $enabled;
+
         return $this;
     }
 
@@ -168,6 +177,7 @@ class Scope implements Arrayable, JsonSerializable
         $this->allowPull = true;
         $this->allowPush = true;
         $this->allowDelete = true;
+
         return $this;
     }
 
@@ -176,7 +186,7 @@ class Scope implements Arrayable, JsonSerializable
      */
     public function catalog(): static
     {
-        $instance = new static();
+        $instance = new static;
         $instance->type = ScopeResourceType::Registry;
         $instance->name = 'catalog';
         $instance->allowAll();
@@ -187,12 +197,12 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Factory method to create a new scope for a repo.
      *
-     * @param string $repo The name of the repository.
+     * @param  string  $repo  The name of the repository.
      * @return Scope
      */
     public function repository(string $repo): static
     {
-        $instance = new static();
+        $instance = new static;
         $instance->type = ScopeResourceType::Repository;
         $instance->name = $repo;
 
@@ -202,12 +212,12 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Factory method to create a new scope for a repo write push access.
      *
-     * @param string $repo The name of the repository.
+     * @param  string  $repo  The name of the repository.
      * @return Scope
      */
     public function writeRepository(string $repo): static
     {
-        $instance = new static();
+        $instance = new static;
         $instance->type = ScopeResourceType::Repository;
         $instance->name = $repo;
         $instance->allowPush();
@@ -218,12 +228,12 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Factory method to create a new scope for a repo with pull access.
      *
-     * @param string $repo The name of the repository.
+     * @param  string  $repo  The name of the repository.
      * @return Scope
      */
     public function readRepository(string $repo): static
     {
-        $instance = new static();
+        $instance = new static;
         $instance->type = ScopeResourceType::Repository;
         $instance->name = $repo;
         $instance->allowPull();
@@ -234,12 +244,12 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Factory method to create a new scope for a repo with delete access.
      *
-     * @param string $repo The name of the repository.
+     * @param  string  $repo  The name of the repository.
      * @return Scope
      */
     public function deleteRepository(string $repo): static
     {
-        $instance = new static();
+        $instance = new static;
         $instance->type = ScopeResourceType::Repository;
         $instance->name = $repo;
         $instance->allowDelete();
@@ -251,6 +261,7 @@ class Scope implements Arrayable, JsonSerializable
     {
         $this->allowPull = true;
         $this->allowPush = true;
+
         return $this;
     }
 
@@ -262,13 +273,12 @@ class Scope implements Arrayable, JsonSerializable
         $this->allowPull = false;
         $this->allowPush = false;
         $this->allowDelete = false;
+
         return $this;
     }
 
     /**
      * Check if the scope has pull access.
-     *
-     * @return bool
      */
     public function hasPull(): bool
     {
@@ -277,8 +287,6 @@ class Scope implements Arrayable, JsonSerializable
 
     /**
      * Check if the scope has push access.
-     *
-     * @return bool
      */
     public function hasPush(): bool
     {
@@ -287,8 +295,6 @@ class Scope implements Arrayable, JsonSerializable
 
     /**
      * Check if the scope has delete access.
-     *
-     * @return bool
      */
     public function hasDelete(): bool
     {
@@ -298,7 +304,6 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Convert the scope to a registry-compatible string.
      *
-     * @return string
      * @see toString()
      */
     public function __toString(): string
@@ -308,19 +313,14 @@ class Scope implements Arrayable, JsonSerializable
 
     /**
      * Convert the scope to a registry-compatible string.
-     *
-     * @return string
      */
     public function toString(): string
     {
-        return "{$this->type->value}:{$this->name}:" . implode(',', $this->actions);
+        return "{$this->type->value}:{$this->name}:".implode(',', $this->actions);
     }
 
     /**
      * Convert the scope to JSON.
-     *
-     * @param int $options
-     * @return string
      */
     public function toJson(int $options = 0): string
     {
@@ -353,8 +353,6 @@ class Scope implements Arrayable, JsonSerializable
 
     /**
      * Get the resource type of the scope.
-     *
-     * @return ScopeResourceType
      */
     public function getResourceType(): ScopeResourceType
     {
@@ -363,8 +361,6 @@ class Scope implements Arrayable, JsonSerializable
 
     /**
      * Get the resource name of the scope.
-     *
-     * @return string
      */
     public function getResourceName(): string
     {
@@ -384,12 +380,13 @@ class Scope implements Arrayable, JsonSerializable
     /**
      * Overwrite the actions with the given array.
      *
-     * @param array<int, string> $actions
+     * @param  array<int, string>  $actions
      * @return $this
      */
     public function setActions(array $actions): static
     {
         $this->actions = $actions;
+
         return $this;
     }
 }

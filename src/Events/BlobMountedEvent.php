@@ -2,6 +2,4 @@
 
 namespace Cainy\Dockhand\Events;
 
-class BlobMountedEvent extends RegistryEvent
-{
-}
+class BlobMountedEvent extends RegistryEvent {}

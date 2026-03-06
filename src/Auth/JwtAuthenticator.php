@@ -22,10 +22,10 @@ class JwtAuthenticator implements Authenticator
     protected array $tokenCache = [];
 
     /**
-     * @param non-empty-string $authorityName
-     * @param non-empty-string $registryName
-     * @param non-empty-string $privateKeyPath
-     * @param non-empty-string $publicKeyPath
+     * @param  non-empty-string  $authorityName
+     * @param  non-empty-string  $registryName
+     * @param  non-empty-string  $privateKeyPath
+     * @param  non-empty-string  $publicKeyPath
      */
     public function __construct(string $authorityName, string $registryName, string $privateKeyPath, string $publicKeyPath)
     {
@@ -35,13 +35,13 @@ class JwtAuthenticator implements Authenticator
     }
 
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      */
     public function authenticate(PendingRequest $request, string $action, ?string $repository = null, array $extra = []): PendingRequest
     {
         $cacheKey = $this->buildCacheKey($action, $repository, $extra);
 
-        if (!isset($this->tokenCache[$cacheKey])) {
+        if (! isset($this->tokenCache[$cacheKey])) {
             $this->tokenCache[$cacheKey] = $this->buildToken($action, $repository, $extra);
         }
 
@@ -59,7 +59,7 @@ class JwtAuthenticator implements Authenticator
     }
 
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      */
     protected function buildCacheKey(string $action, ?string $repository, array $extra): string
     {
@@ -70,7 +70,7 @@ class JwtAuthenticator implements Authenticator
     }
 
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      */
     protected function buildToken(string $action, ?string $repository, array $extra): string
     {

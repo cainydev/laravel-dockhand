@@ -31,7 +31,6 @@ readonly class ManifestListEntry implements Arrayable, JsonSerializable
      */
     public int $size;
 
-
     /**
      * The platform of this manifest list entry.
      */
@@ -39,12 +38,6 @@ readonly class ManifestListEntry implements Arrayable, JsonSerializable
 
     /**
      * Create a new ManifestListEntry instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $size
-     * @param Platform $platform
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $size, Platform $platform)
     {
@@ -58,9 +51,7 @@ readonly class ManifestListEntry implements Arrayable, JsonSerializable
     /**
      * Parse a manifest list entry from an array.
      *
-     * @param string $repository
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(string $repository, array $data): self
     {
@@ -84,13 +75,6 @@ readonly class ManifestListEntry implements Arrayable, JsonSerializable
 
     /**
      * Create a new ManifestListEntry instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $size
-     * @param Platform $platform
-     * @return self
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $size, Platform $platform): self
     {

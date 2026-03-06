@@ -25,14 +25,14 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
 
     public function discoverExtensions(): array
     {
-        $cacheKey = 'dockhand:zot:extensions:' . md5($this->baseUrl);
+        $cacheKey = 'dockhand:zot:extensions:'.md5($this->baseUrl);
 
         return Cache::remember($cacheKey, $this->extensionCacheTtl, function () {
             try {
                 $response = $this->authenticatedRequest('none')
                     ->get('/_zot/ext/discover');
 
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     return [];
                 }
 
@@ -44,6 +44,7 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
                 $this->logger()->warning('[ZotDriver] Failed to discover extensions', [
                     'error' => $e->getMessage(),
                 ]);
+
                 return [];
             }
         });
@@ -51,7 +52,7 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
 
     public function clearExtensionCache(): void
     {
-        $cacheKey = 'dockhand:zot:extensions:' . md5($this->baseUrl);
+        $cacheKey = 'dockhand:zot:extensions:'.md5($this->baseUrl);
         Cache::forget($cacheKey);
     }
 
@@ -65,8 +66,8 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
                 'variables' => $variables,
             ]);
 
-        if (!$response->successful()) {
-            throw new \Exception("Zot search request failed. Status: " . $response->status() . " Body: " . $response->body());
+        if (! $response->successful()) {
+            throw new \Exception('Zot search request failed. Status: '.$response->status().' Body: '.$response->body());
         }
 
         /** @var array<string, mixed> $result */
@@ -134,7 +135,7 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
         $url = "/{$repository}/referrers/{$digest}";
 
         if ($artifactType !== null) {
-            $url .= '?' . http_build_query(['artifactType' => $artifactType]);
+            $url .= '?'.http_build_query(['artifactType' => $artifactType]);
         }
 
         try {
@@ -144,7 +145,7 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
             return [];
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return [];
         }
 
@@ -159,7 +160,7 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
         $this->requireExtension('userprefs');
 
         $response = $this->authenticatedRequest('none')
-            ->put("/_zot/ext/userprefs?" . http_build_query([
+            ->put('/_zot/ext/userprefs?'.http_build_query([
                 'action' => $action,
                 'repo' => $repository,
             ]));
@@ -184,7 +185,7 @@ class ZotDriver extends AbstractRegistryDriver implements ZotCapabilities
             }
         }
 
-        if (!$found) {
+        if (! $found) {
             throw new ExtensionNotEnabledException($extension);
         }
     }

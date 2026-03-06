@@ -10,19 +10,18 @@ use Cainy\Dockhand\Actions\ManagesRegistry;
 use Cainy\Dockhand\Actions\ManagesRepositories;
 use Cainy\Dockhand\Contracts\Authenticator;
 use Cainy\Dockhand\Contracts\RegistryDriver as RegistryDriverContract;
-use Cainy\Dockhand\Exceptions\UnauthorizedException;
 use Cainy\Dockhand\Services\RegistryRequestService;
 use Illuminate\Http\Client\PendingRequest;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractRegistryDriver implements RegistryDriverContract
 {
-    use ManagesManifests,
-        ManagesRegistry,
-        ManagesRepositories,
-        ManagesBlobs,
+    use ManagesBlobs,
         ManagesBlobUploads,
-        ManagesDeletion;
+        ManagesDeletion,
+        ManagesManifests,
+        ManagesRegistry,
+        ManagesRepositories;
 
     protected string $baseUrl;
 
@@ -46,7 +45,7 @@ abstract class AbstractRegistryDriver implements RegistryDriverContract
      * On 401 response, flushes cached auth state and retries once.
      */
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      */
     public function authenticatedRequest(string $action, ?string $repository = null, array $extra = []): PendingRequest
     {

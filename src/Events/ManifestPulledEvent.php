@@ -2,6 +2,4 @@
 
 namespace Cainy\Dockhand\Events;
 
-class ManifestPulledEvent extends RegistryEvent
-{
-}
+class ManifestPulledEvent extends RegistryEvent {}

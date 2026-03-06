@@ -33,11 +33,6 @@ abstract readonly class ManifestResource implements Arrayable, JsonSerializable
 
     /**
      * Create a new manifest resource instance.
-     *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $schemaVersion
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $schemaVersion)
     {
@@ -47,18 +42,13 @@ abstract readonly class ManifestResource implements Arrayable, JsonSerializable
         $this->schemaVersion = $schemaVersion;
     }
 
-
     /**
      * Return the size of the resource.
-     *
-     * @return int
      */
     abstract public function getSize(): int;
 
     /**
      * Check if this is a manifest list.
-     *
-     * @return bool
      */
     abstract public function isManifestList(): bool;
 

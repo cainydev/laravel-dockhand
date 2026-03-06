@@ -23,7 +23,7 @@ abstract class RegistryEvent extends RegistryBaseEvent
     }
 
     /**
-     * @param array{id: string, timestamp: string, action: string, target: array{mediaType: string, size: int, url: string, tag?: string, digest?: string, repository: string}, request: array{id: string, addr: string, host: string, method: string, useragent: string}, actor?: array{name: string}, source: array{addr: string, instanceID: string}} $data
+     * @param  array{id: string, timestamp: string, action: string, target: array{mediaType: string, size: int, url: string, tag?: string, digest?: string, repository: string}, request: array{id: string, addr: string, host: string, method: string, useragent: string}, actor?: array{name: string}, source: array{addr: string, instanceID: string}}  $data
      */
     public function __construct(array $data)
     {
@@ -39,5 +39,4 @@ abstract class RegistryEvent extends RegistryBaseEvent
             $this->targetTag = null;
         }
     }
-
 }

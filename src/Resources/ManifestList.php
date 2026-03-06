@@ -22,11 +22,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
     /**
      * Create a new manifest list instance.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $schemaVersion
-     * @param Collection<int, ManifestListEntry> $manifests
+     * @param  Collection<int, ManifestListEntry>  $manifests
      */
     public function __construct(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, Collection $manifests)
     {
@@ -37,12 +33,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
     /**
      * Create a new manifest list instance.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param MediaType $mediaType
-     * @param int $schemaVersion
-     * @param Collection<int, ManifestListEntry> $manifests
-     * @return self
+     * @param  Collection<int, ManifestListEntry>  $manifests
      */
     public static function create(string $repository, string $digest, MediaType $mediaType, int $schemaVersion, Collection $manifests): self
     {
@@ -52,14 +43,11 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
     /**
      * Parse a manifest list from an array.
      *
-     * @param string $repository
-     * @param string $digest
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function parse(string $repository, string $digest, array $data): self
     {
-        if (!isset($data['mediaType'], $data['schemaVersion'], $data['manifests'])) {
+        if (! isset($data['mediaType'], $data['schemaVersion'], $data['manifests'])) {
             throw new \ParseError('Invalid manifest list data');
         }
 
@@ -70,7 +58,7 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
         $schemaVersion = $data['schemaVersion'];
         /** @var array<int, array<string, mixed>> $manifestsData */
         $manifestsData = $data['manifests'];
-        $manifests = collect($manifestsData)->map(fn(array $m) => ManifestListEntry::parse($repository, $m));
+        $manifests = collect($manifestsData)->map(fn (array $m) => ManifestListEntry::parse($repository, $m));
 
         return new self($repository, $digest, $mediaType, $schemaVersion, $manifests);
     }
@@ -78,18 +66,16 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
     /**
      * Find a manifest entry in a manifest list by platform.
      *
-     * @param Platform $platform The platform to match against.
+     * @param  Platform  $platform  The platform to match against.
      * @return ManifestListEntry|null The manifest entry if found, null otherwise.
      */
     public function findManifestListEntryByPlatform(Platform $platform): ?ManifestListEntry
     {
-        return $this->manifests->first(fn(ManifestListEntry $m) => $m->platform === $platform);
+        return $this->manifests->first(fn (ManifestListEntry $m) => $m->platform === $platform);
     }
 
     /**
      * Return the size of the resource.
-     *
-     * @return int
      */
     public function getSize(): int
     {
@@ -98,8 +84,6 @@ readonly class ManifestList extends ManifestResource implements Arrayable, JsonS
 
     /**
      * Check if this is a manifest list.
-     *
-     * @return bool
      */
     public function isManifestList(): bool
     {
