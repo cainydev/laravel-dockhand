@@ -2,13 +2,14 @@
 
 namespace Cainy\Dockhand\Actions;
 
-use Cainy\Dockhand\Facades\Scope;
-use Cainy\Dockhand\Facades\Token;
 use Cainy\Dockhand\Resources\ImageConfig;
 use Cainy\Dockhand\Resources\ImageConfigDescriptor;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 
+/**
+ * @phpstan-require-extends \Cainy\Dockhand\Drivers\AbstractRegistryDriver
+ */
 trait ManagesBlobs
 {
     /**
@@ -22,12 +23,7 @@ trait ManagesBlobs
     public function getBlob(string $repository, string $reference): string|null
     {
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::readRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('read', $repository)
                 ->accept('*/*')
                 ->get("/{$repository}/blobs/{$reference}");
         } catch (ConnectionException $e) {
@@ -47,7 +43,8 @@ trait ManagesBlobs
             throw new Exception($errorMessage);
         }
 
-        $actualDigest = $response->header('Docker-Content-Digest');
+        $digestHeader = $this->contentDigestHeader();
+        $actualDigest = $response->header($digestHeader);
 
         if (empty($actualDigest)) {
             $actualDigest = $response->header('ETag');
@@ -57,7 +54,7 @@ trait ManagesBlobs
         }
 
         if (empty($actualDigest)) {
-            throw new Exception("Registry did not provide 'Docker-Content-Digest' or 'ETag' header for manifest {$repository}:{$reference}.");
+            throw new Exception("Registry did not provide '{$digestHeader}' or 'ETag' header for manifest {$repository}:{$reference}.");
         }
 
         return $response->body();
@@ -74,12 +71,7 @@ trait ManagesBlobs
     public function getBlobSize(string $repository, string $reference): int|null
     {
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::readRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('read', $repository)
                 ->head("/{$repository}/blobs/{$reference}");
         } catch (ConnectionException $e) {
             throw new Exception("Connection to registry failed for {$repository}:{$reference}: " . $e->getMessage(), 0, $e);
@@ -111,12 +103,7 @@ trait ManagesBlobs
     public function getImageConfigFromDescriptor(ImageConfigDescriptor $descriptor): ImageConfig|null
     {
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::readRepository($descriptor->repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('read', $descriptor->repository)
                 ->get("/{$descriptor->repository}/blobs/{$descriptor->digest}");
         } catch (ConnectionException $e) {
             throw new Exception("Connection to registry failed for {$descriptor->repository}:{$descriptor->digest}: " . $e->getMessage(), 0, $e);
@@ -135,10 +122,13 @@ trait ManagesBlobs
             throw new Exception($errorMessage);
         }
 
+        /** @var array<string, mixed> $jsonData */
+        $jsonData = $response->json();
+
         return ImageConfig::parse(
             $descriptor->repository,
             $descriptor->digest,
             $descriptor->mediaType,
-            $response->json());
+            $jsonData);
     }
 }

@@ -3,14 +3,14 @@
 namespace Cainy\Dockhand\Actions;
 
 use Cainy\Dockhand\Exceptions\PaginationNumberInvalidException;
-use Cainy\Dockhand\Facades\Scope;
-use Cainy\Dockhand\Facades\Token;
 use Cainy\Dockhand\Resources\PaginatedResult;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Collection;
 use function collect;
-use function now;
 
+/**
+ * @phpstan-require-extends \Cainy\Dockhand\Drivers\AbstractRegistryDriver
+ */
 trait ManagesRepositories
 {
     /**
@@ -18,7 +18,7 @@ trait ManagesRepositories
      *
      * @param int|null $limit Maximum number of results per page. Null for no pagination.
      * @param string|null $last The last repository name from a previous paginated response.
-     * @return Collection<string>|PaginatedResult Collection when not paginating, PaginatedResult when $limit is set.
+     * @return Collection<int, string>|PaginatedResult Collection when not paginating, PaginatedResult when $limit is set.
      * @throws PaginationNumberInvalidException If $limit is less than 1.
      * @throws ConnectionException
      */
@@ -43,15 +43,12 @@ trait ManagesRepositories
             $url .= '?' . http_build_query($query);
         }
 
-        $response = $this->request()
-            ->withToken(Token::withScope(Scope::catalog())
-                ->issuedBy($this->authorityName)
-                ->permittedFor($this->registryName)
-                ->expiresAt(now()->addMinutes(2))
-                ->toString())
+        $response = $this->authenticatedRequest('catalog')
             ->get($url);
 
-        $items = collect($response['repositories']);
+        /** @var array<int, string> $repositories */
+        $repositories = $response['repositories'];
+        $items = collect($repositories);
 
         if ($limit === null) {
             return $items;
@@ -69,7 +66,7 @@ trait ManagesRepositories
      * @param string $repository The full repository name (e.g., "john/busybox").
      * @param int|null $limit Maximum number of results per page. Null for no pagination.
      * @param string|null $last The last tag name from a previous paginated response.
-     * @return Collection<string>|PaginatedResult Collection when not paginating, PaginatedResult when $limit is set.
+     * @return Collection<int, string>|PaginatedResult Collection when not paginating, PaginatedResult when $limit is set.
      * @throws PaginationNumberInvalidException If $limit is less than 1.
      * @throws ConnectionException
      */
@@ -94,15 +91,12 @@ trait ManagesRepositories
             $url .= '?' . http_build_query($query);
         }
 
-        $response = $this->request()
-            ->withToken(Token::withScope(Scope::readRepository($repository))
-                ->issuedBy($this->authorityName)
-                ->permittedFor($this->registryName)
-                ->expiresAt(now()->addMinutes(2))
-                ->toString())
+        $response = $this->authenticatedRequest('read', $repository)
             ->get($url);
 
-        $items = collect($response['tags']);
+        /** @var array<int, string> $tags */
+        $tags = $response['tags'];
+        $items = collect($tags);
 
         if ($limit === null) {
             return $items;

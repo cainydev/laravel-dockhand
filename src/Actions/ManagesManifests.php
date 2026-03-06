@@ -6,8 +6,6 @@ use Cainy\Dockhand\Enums\MediaType;
 use Cainy\Dockhand\Exceptions\ManifestBlobUnknownException;
 use Cainy\Dockhand\Exceptions\ManifestInvalidException;
 use Cainy\Dockhand\Exceptions\UnsupportedException;
-use Cainy\Dockhand\Facades\Scope;
-use Cainy\Dockhand\Facades\Token;
 use Cainy\Dockhand\Resources\ImageManifest;
 use Cainy\Dockhand\Resources\ManifestHead;
 use Cainy\Dockhand\Resources\ManifestList;
@@ -18,6 +16,9 @@ use Exception;
 use InvalidArgumentException;
 use Illuminate\Http\Client\ConnectionException;
 
+/**
+ * @phpstan-require-extends \Cainy\Dockhand\Drivers\AbstractRegistryDriver
+ */
 trait ManagesManifests
 {
     /**
@@ -36,12 +37,7 @@ trait ManagesManifests
         ]);
 
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::readRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('read', $repository)
                 ->accept(MediaType::getManifestTypesAsString())
                 ->head("/{$repository}/manifests/{$reference}");
         } catch (ConnectionException $e) {
@@ -57,7 +53,7 @@ trait ManagesManifests
         }
 
         return new ManifestHead(
-            $response->header('Docker-Content-Digest'),
+            $response->header($this->contentDigestHeader()),
             (int) $response->header('Content-Length'),
             $response->header('Content-Type'),
         );
@@ -86,7 +82,8 @@ trait ManagesManifests
 
         if ($manifest instanceof ManifestResource) {
             $mediaType = $manifest->mediaType;
-            $body = json_encode($this->buildManifestBody($manifest->toArray()));
+            $encoded = json_encode($this->buildManifestBody($manifest->toArray()));
+            $body = $encoded !== false ? $encoded : '{}';
         } else {
             if ($mediaType === null) {
                 throw new InvalidArgumentException('$mediaType is required when $manifest is a string.');
@@ -95,12 +92,7 @@ trait ManagesManifests
         }
 
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::writeRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('write', $repository)
                 ->contentType($mediaType->toString())
                 ->withBody($body, $mediaType->toString())
                 ->put("/{$repository}/manifests/{$reference}");
@@ -111,13 +103,16 @@ trait ManagesManifests
         if ($response->status() === 201) {
             return new PushResult(
                 $response->header('Location'),
-                $response->header('Docker-Content-Digest'),
+                $response->header($this->contentDigestHeader()),
             );
         }
 
         if ($response->status() === 400) {
+            /** @var array<string, mixed>|null $errorBody */
             $errorBody = $response->json();
-            $code = $errorBody['errors'][0]['code'] ?? '';
+            /** @var array<int, array<string, string>> $errors */
+            $errors = $errorBody['errors'] ?? [];
+            $code = $errors[0]['code'] ?? '';
 
             if ($code === 'BLOB_UNKNOWN') {
                 throw new ManifestBlobUnknownException("Referenced blob unknown for {$repository}:{$reference}: " . $response->body());
@@ -136,16 +131,16 @@ trait ManagesManifests
 
         // Some registries return 200 instead of 201
         return new PushResult(
-            $response->header('Location') ?? '',
-            $response->header('Docker-Content-Digest') ?? '',
+            $response->header('Location') ?: '',
+            $response->header($this->contentDigestHeader()) ?: '',
         );
     }
 
     /**
      * Build the wire-format manifest body by stripping non-wire fields.
      *
-     * @param array $data
-     * @return array
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     private function buildManifestBody(array $data): array
     {
@@ -153,6 +148,7 @@ trait ManagesManifests
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $data[$key] = $this->buildManifestBody($value);
             }
         }
@@ -188,12 +184,7 @@ trait ManagesManifests
         ]);
 
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::readRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('read', $repository)
                 ->accept(MediaType::getManifestTypesAsString())
                 ->get("/{$repository}/manifests/{$reference}");
         } catch (ConnectionException $e) {
@@ -213,17 +204,20 @@ trait ManagesManifests
             throw new Exception($errorMessage);
         }
 
+        /** @var array<string, mixed>|null $manifestData */
         $manifestData = $response->json();
         if ($manifestData === null && json_last_error() !== JSON_ERROR_NONE) {
             throw new Exception("Failed to decode manifest JSON for {$repository}:{$reference}. Response Body: " . $response->body());
         }
 
+        /** @var array<string, mixed> $manifestData */
         $this->logger()->debug("[ManagesManifests] Parsed manifest data from json", $manifestData);
 
-        $digest = $response->header('Docker-Content-Digest');
+        $digestHeader = $this->contentDigestHeader();
+        $digest = $response->header($digestHeader);
 
         if (empty($digest)) {
-            $this->logger()->debug("[ManagesManifests] Docker-Content-Digest header was empty", $response->headers());
+            $this->logger()->debug("[ManagesManifests] {$digestHeader} header was empty", $response->headers());
             $digest = $response->header('ETag');
             if ($digest) {
                 $digest = trim($digest, '"W/');
@@ -236,14 +230,16 @@ trait ManagesManifests
         }
 
         if (empty($digest)) {
-            throw new Exception("Registry did not provide 'Docker-Content-Digest' or 'ETag' header for manifest {$repository}:{$reference}.");
+            throw new Exception("Registry did not provide '{$digestHeader}' or 'ETag' header for manifest {$repository}:{$reference}.");
         }
 
         if (empty($manifestData['mediaType'])) {
             throw new Exception("Manifest for {$repository}:{$reference} does not contain 'mediaType' field.");
         }
 
-        $mediaType = MediaType::from($manifestData['mediaType']);
+        /** @var string $mediaTypeValue */
+        $mediaTypeValue = $manifestData['mediaType'];
+        $mediaType = MediaType::from($mediaTypeValue);
 
         if ($mediaType->isManifestList()) {
             $this->logger()->debug("[ManagesManifests] Trying to parse ManifestList from data", $manifestData);

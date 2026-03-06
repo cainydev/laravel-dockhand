@@ -6,14 +6,15 @@ use Cainy\Dockhand\Exceptions\BlobUploadInvalidException;
 use Cainy\Dockhand\Exceptions\BlobUploadUnknownException;
 use Cainy\Dockhand\Exceptions\DigestInvalidException;
 use Cainy\Dockhand\Exceptions\RangeInvalidException;
-use Cainy\Dockhand\Facades\Scope;
-use Cainy\Dockhand\Facades\Token;
 use Cainy\Dockhand\Resources\BlobUpload;
 use Cainy\Dockhand\Resources\PushResult;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 
+/**
+ * @phpstan-require-extends \Cainy\Dockhand\Drivers\AbstractRegistryDriver
+ */
 trait ManagesBlobUploads
 {
     /**
@@ -30,12 +31,7 @@ trait ManagesBlobUploads
         ]);
 
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::writeRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('write', $repository)
                 ->withBody('', 'application/octet-stream')
                 ->post("/{$repository}/blobs/uploads/");
         } catch (ConnectionException $e) {
@@ -67,14 +63,7 @@ trait ManagesBlobUploads
         ]);
 
         try {
-            $response = $this->request()
-                ->withToken(Token::create()
-                    ->withScope(Scope::readRepository($fromRepository))
-                    ->withScope(Scope::writeRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('mount', $repository, ['from' => $fromRepository])
                 ->withBody('', 'application/octet-stream')
                 ->post("/{$repository}/blobs/uploads/?mount={$digest}&from={$fromRepository}");
         } catch (ConnectionException $e) {
@@ -84,7 +73,7 @@ trait ManagesBlobUploads
         if ($response->status() === 201) {
             return new PushResult(
                 $response->header('Location'),
-                $response->header('Docker-Content-Digest'),
+                $response->header($this->contentDigestHeader()),
             );
         }
 
@@ -184,13 +173,16 @@ trait ManagesBlobUploads
         if ($response->status() === 201) {
             return new PushResult(
                 $response->header('Location'),
-                $response->header('Docker-Content-Digest'),
+                $response->header($this->contentDigestHeader()),
             );
         }
 
         if ($response->status() === 400) {
+            /** @var array<string, mixed>|null $body */
             $body = $response->json();
-            $code = $body['errors'][0]['code'] ?? '';
+            /** @var array<int, array<string, string>> $errors */
+            $errors = $body['errors'] ?? [];
+            $code = $errors[0]['code'] ?? '';
 
             if ($code === 'DIGEST_INVALID') {
                 throw new DigestInvalidException("Digest invalid for blob upload completion: " . $response->body());
@@ -219,12 +211,7 @@ trait ManagesBlobUploads
         ]);
 
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::writeRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('write', $repository)
                 ->get("/{$repository}/blobs/uploads/{$uuid}");
         } catch (ConnectionException $e) {
             throw new Exception("Connection to registry failed for {$repository}: " . $e->getMessage(), 0, $e);
@@ -257,12 +244,7 @@ trait ManagesBlobUploads
         ]);
 
         try {
-            $response = $this->request()
-                ->withToken(Token::withScope(Scope::writeRepository($repository))
-                    ->issuedBy($this->authorityName)
-                    ->permittedFor($this->registryName)
-                    ->expiresAt(now()->addMinutes(2))
-                    ->toString())
+            $response = $this->authenticatedRequest('write', $repository)
                 ->delete("/{$repository}/blobs/uploads/{$uuid}");
         } catch (ConnectionException $e) {
             throw new Exception("Connection to registry failed for {$repository}: " . $e->getMessage(), 0, $e);
@@ -316,12 +298,7 @@ trait ManagesBlobUploads
     private function resolveUploadLocation(BlobUpload $upload): array
     {
         $location = $upload->location;
-        $request = $this->request()
-            ->withToken(Token::withScope(Scope::writeRepository($upload->repository))
-                ->issuedBy($this->authorityName)
-                ->permittedFor($this->registryName)
-                ->expiresAt(now()->addMinutes(2))
-                ->toString());
+        $request = $this->authenticatedRequest('write', $upload->repository);
 
         if (str_starts_with($location, 'http://') || str_starts_with($location, 'https://')) {
             if (str_starts_with($location, $this->baseUrl)) {

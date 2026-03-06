@@ -3,9 +3,11 @@
 namespace Cainy\Dockhand\Actions;
 
 use Cainy\Dockhand\Enums\RegistryApiVersion;
-use Cainy\Dockhand\Facades\Token;
 use Illuminate\Http\Client\ConnectionException;
 
+/**
+ * @phpstan-require-extends \Cainy\Dockhand\Drivers\AbstractRegistryDriver
+ */
 trait ManagesRegistry
 {
     /**
@@ -14,9 +16,7 @@ trait ManagesRegistry
     public function isOnline(): bool
     {
         try {
-            $this
-                ->request()
-                ->withToken(Token::toString())
+            $this->authenticatedRequest('none')
                 ->get('/');
 
             return true;
@@ -32,12 +32,10 @@ trait ManagesRegistry
      */
     public function getApiVersion(): RegistryApiVersion
     {
-        $response = $this
-            ->request()
-            ->withToken(Token::toString())
+        $response = $this->authenticatedRequest('none')
             ->get('/');
 
-        return match ($response->getHeaderLine('Docker-Distribution-Api-Version')) {
+        return match ($response->header('Docker-Distribution-Api-Version')) {
             'registry/1.0' => RegistryApiVersion::V1,
             default => RegistryApiVersion::V2,
         };
